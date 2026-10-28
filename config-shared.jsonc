@@ -243,7 +243,7 @@
     "hide-empty-text": false,
     "restart-interval": 3,
     "exec-on-event": false,
-    "tooltip-format": "Quick Menu (Wi-Fi / Bluetooth / Power)",
+    "tooltip-format": "Quick Menu (Wi-Fi / Bluetooth / Packages / Power)",
     "on-click": "~/.config/waybar/scripts/quick-controls-rofi.sh"
   },
 
