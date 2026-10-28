@@ -21,7 +21,7 @@ This is a working desktop configuration, not a universal installer. Back up your
 Run:
 
 ```sh
-waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css
+python3 ~/.config/waybar/scripts/responsive-waybar.py
 ```
 
 ### Install the included Rofi setup
@@ -65,7 +65,7 @@ Install the dependencies for the features you use, or remove those modules from 
 
 ### Machine-specific settings
 
-- `config.jsonc` uses `DP-2` for the second, portrait monitor. Change the output names to match your desktop.
+- The responsive launcher reads Hyprland monitor sizes, rotation and scale. `config.jsonc` remains a static fallback for launching Waybar directly.
 - GPU gauges currently require AMD-style `gpu_busy_percent` and VRAM counters in `/sys/class/drm`.
 - CPU temperatures support `coretemp`, `k10temp` and `zenpower` sensors. Temperature colours use the sensors' reported limits, with fallback display thresholds when limits are absent.
 - The weather script uses IP geolocation, falling back to Brisbane, Australia. It queries ipapi.co and weather providers Open-Meteo, wttr.in and met.no.
@@ -73,6 +73,22 @@ Install the dependencies for the features you use, or remove those modules from 
 - The Quick Menu inherits the Rofi theme (`rofi/mytheme.rasi` in this repository). Its prompt font/padding override is contained in `scripts/quick-controls-rofi.sh`.
 - The power menu includes shutdown/reboot and a Hyprland Lua logout command. Review `scripts/quick-controls-power.sh` for your compositor before using it.
 - Tailscale's click action opens its local service address, `http://100.100.100.100`.
+
+## Responsive monitor layouts
+
+Launch `scripts/responsive-waybar.py` with Python 3 from Hyprland autostart. It runs Waybar, checks monitor layout every two seconds, and reloads only when the generated layout changes. A lock prevents duplicate responsive launchers. Shared module settings remain in `config-shared.jsonc`; generated per-monitor overrides live in `$XDG_RUNTIME_DIR/waybar-responsive/config.json`.
+
+Thresholds use logical width (after rotation and scaling), not raw panel resolution:
+
+| Width | Layout |
+| --- | --- |
+| 2000 px and wider | Full bar including music |
+| Below 2000 px | Hide the music player first |
+| Below 1400 px | Also hide network traffic and reduce spacing |
+| Below 1100 px | Also hide weather, clipboard and screenshot buttons; allow clock to shift |
+| Below 900 px | Also hide Tailscale; keep CPU, RAM and GPU gauges |
+
+Workspaces, clock, volume and Quick Menu remain available. Adjust thresholds in `scripts/responsive-waybar.py`. `python3 scripts/responsive-waybar.py --print-config` previews the generated layout without starting Waybar.
 
 ## Network menu
 

@@ -5,6 +5,7 @@ backups/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+responsive-waybar.log
 
 # Local agent state and credentials
 .agents/
