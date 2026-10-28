@@ -1,0 +1,4 @@
+Tailscale icon from https://tailscale.com/press
+Media kit: https://cdn.sanity.io/files/w77i7m8x/production/a426ba5f63316745e108a18a6dbbfed6970752fd.zip
+Original: Tailscale Logo/svg/Wht/Tailscale_icon_wht_rgb.svg
+Recoloured for Waybar connection states; original geometry and opacity retained.

@@ -1,0 +1,459 @@
+@import url("usage-wheels.css");
+
+@define-color waybar_background rgba(0, 0, 0, 0.85);
+
+* {
+  font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
+  font-size: 15px;
+  padding: 0;
+  margin: 0;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+window#waybar {
+  background: @waybar_background;
+  color: #ffffff;
+  margin: 0 0px;
+  border-radius: 0 0 0 0;
+  padding: 0 10px;
+  /* box-shadow: 0px 4px 8px rgba(0,0,0,0.6); */
+}
+
+#workspaces button {
+  padding: 2px 6px;
+  margin: 0 4px;
+  border-radius: 6px;
+  color: #888;
+}
+
+/* #tray {
+  margin-right: 6px;
+} */
+
+/* module {
+  margin-left: 8px;
+} */
+
+#custom-power {
+  /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  /* padding: 2px 9px; */
+  padding-left: 10px;
+  padding-right: 10px;
+  /* margin: 0 4px; */
+  margin-right: 20px;
+
+
+
+}
+
+
+#custom-screenshot {
+  /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  /* padding: 2px 9px; */
+  /* The glyph extends 5px beyond its font advance; center the visible shape. */
+  padding-left: 5px;
+  padding-right: 10px;
+  /* margin: 0 4px; */
+  /* margin-right: 20px; */
+
+
+
+}
+
+
+#custom-weather {
+  /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  /* padding: 2px 9px; */
+  padding-left: 4px;
+  padding-right: 4px;
+  /* margin: 0 4px; */
+  /* margin-right: 20px; */
+}
+
+#custom-bluetooth {
+  /* margin-left: 160px; */
+  color: #fff;
+  border-radius: 8px;
+  /* padding: 2px 2px; */
+  padding-left: 10px;
+  /* margin: 0 4px; */
+}
+
+/* network#icon {
+  background: #fff;
+  color: black;
+} */
+
+#network.icon {
+  /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  padding: 00px 4px;
+  /* margin: 0 4px; */
+  padding-left: 10px;
+}
+
+
+#pulseaudio {
+    /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 4px;
+  /* margin: 0 4px; */
+  /* padding-left: 11px; */
+}
+
+#now-playing {
+  margin-right: 6px;
+}
+
+#image.album-art {
+  margin: 3px 0;
+}
+
+#custom-visualizer-left,
+#custom-visualizer-right {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 16px;
+  color: #fff;
+}
+
+#custom-visualizer-left {
+  margin-right: 12px;
+}
+
+#custom-visualizer-right {
+  margin-left: 12px;
+}
+
+#custom-visualizer-left.silent,
+#custom-visualizer-right.silent {
+  color: #555;
+}
+
+#custom-now-playing {
+  padding: 2px 6px;
+  margin-left: 6px;
+  border-radius: 8px;
+}
+
+#custom-now-playing.paused {
+  color: #999;
+}
+
+#custom-media-previous,
+#custom-media-toggle,
+#custom-media-next {
+  min-width: 14px;
+  padding: 2px 6px;
+  margin-left: 2px;
+  border-radius: 8px;
+}
+
+#custom-quickmenu {
+  color: #fff;
+  border-radius: 8px;
+  /* Center the visible glyph, accounting for its trailing font space. */
+  padding-left: 15px;
+  padding-right: 10px;
+  /* margin-right: 0px; */
+}
+
+
+#custom-clipboard {
+  /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 7.5px;
+  /* margin: 0 4px; */
+}
+
+
+
+
+#custom-arch {
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 7.5px;
+  background-color: black;
+  font-size: 18px;
+  margin-left: 10px;
+  /* margin: 0 4px; */
+}
+
+
+#clock {
+
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 15px;
+  background: @waybar_background;
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+#memory {
+  font-family: "JetBrainsMono Nerd Font";
+}
+
+/* #cpu {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 15px;
+} */
+
+
+
+
+
+#cpu {
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+
+#memory {
+  border-radius: 8px; 
+  padding: 2px 4px;
+}
+
+#custom-swap {
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+
+#temperature {
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+
+
+#custom-temps {
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+
+#custom-network {
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+
+#custom-tailscale {
+  font-family: "JetBrainsMono Nerd Font";
+  border-radius: 8px;
+  padding: 2px 26px 2px 4px;
+  background-image: url("icons/tailscale-disconnected.svg");
+  background-size: 22px 22px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#custom-tailscale.connected {
+  background-image: url("icons/tailscale-connected.svg");
+}
+
+#custom-tailscale.exit-node {
+  background-image: url("icons/tailscale-exit-node.svg");
+}
+
+#custom-tailscale.warning {
+  background-image: url("icons/tailscale-warning.svg");
+}
+
+#custom-gpu,
+#custom-gpu-memory,
+#custom-gpu-temp {
+  border-radius: 8px;
+  /* background: #741414; */
+  padding: 2px 4px;
+}
+
+/* Each stats group acts as one button with a shared hover border. */
+#system-stats,
+#system-stats *,
+#gpu-stats,
+#gpu-stats * {
+  transition: none;
+  animation: none;
+}
+
+#system-stats,
+#gpu-stats {
+  border-radius: 8px;
+}
+
+#system-stats #cpu,
+#system-stats #custom-temps,
+#system-stats #memory,
+#system-stats #custom-swap,
+#gpu-stats #custom-gpu,
+#gpu-stats #custom-gpu-memory,
+#gpu-stats #custom-gpu-temp {
+  background-color: transparent;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* Text readings use the same six-pixel inter-item gap as the wheels. */
+#system-stats #custom-temps,
+#gpu-stats #custom-gpu-temp {
+  font-size: 15px;
+  min-height: 28px;
+  padding: 0;
+  margin: 0 3px;
+}
+
+/* Compact gauges keep the existing group hover and Mission Center action. */
+#system-stats #custom-temps.cool,
+#gpu-stats #custom-gpu-temp.cool { color: #308c49; }
+#system-stats #custom-temps.warm,
+#gpu-stats #custom-gpu-temp.warm { color: #e0a12b; }
+#system-stats #custom-temps.hot,
+#gpu-stats #custom-gpu-temp.hot { color: #ef5350; }
+#system-stats #custom-temps.unavailable,
+#gpu-stats #custom-gpu-temp.unavailable { color: #999; }
+
+#system-stats .usage-wheel,
+#gpu-stats .usage-wheel {
+  min-width: 32px;
+  min-height: 28px;
+  padding: 0;
+  margin: 0 3px;
+  /* Proportional icon advances match their drawn width, keeping them centred. */
+  font-family: "JetBrainsMono Nerd Font Propo";
+  font-size: 12px;
+  color: inherit;
+  border-radius: 0;
+  background-color: transparent;
+  background-size: 32px 32px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* The two group borders occupy 4px of the usual 6px inter-item gap. */
+#system-stats #custom-swap {
+  margin-right: 1px;
+}
+#gpu-stats #custom-gpu {
+  margin-left: 1px;
+}
+
+#system-stats .usage-wheel.unavailable,
+#gpu-stats .usage-wheel.unavailable {
+  background-image: url("icons/usage-wheels/0.svg");
+  color: #999;
+}
+
+/* Reserve borders in every state so hover and activation never resize modules. */
+#workspaces button,
+#custom-power,
+#custom-screenshot,
+#custom-weather,
+#custom-bluetooth,
+#custom-wifi,
+#custom-network,
+#pulseaudio,
+#custom-now-playing,
+#custom-media-previous,
+#custom-media-toggle,
+#custom-media-next,
+#custom-quickmenu,
+#custom-clipboard,
+#custom-arch,
+#clock,
+#cpu,
+#memory,
+#temperature,
+#custom-tailscale,
+#system-stats,
+#gpu-stats {
+  border: 2px solid transparent;
+  /* Fade out without changing the reserved border space. */
+  transition: border-color 0.25s ease-out;
+}
+
+#workspaces button:hover,
+#custom-power:hover,
+#custom-screenshot:hover,
+#custom-weather:hover,
+#custom-bluetooth:hover,
+#custom-wifi:hover,
+#custom-network:hover,
+#pulseaudio:hover,
+#custom-now-playing:hover,
+#custom-media-previous:hover,
+#custom-media-toggle:hover,
+#custom-media-next:hover,
+#custom-quickmenu:hover,
+#custom-clipboard:hover,
+#custom-arch:hover,
+#clock:hover,
+#cpu:hover,
+#memory:hover,
+#temperature:hover,
+#custom-tailscale:hover,
+#system-stats:hover,
+#gpu-stats:hover,
+#workspaces button.active,
+#custom-arch.active,
+#custom-quickmenu.active {
+  border-color: #fff;
+  /* Highlight immediately; the base rule handles the fade on pointer exit. */
+  transition: border-color 0s;
+}
+
+/* Suppress GTK button theme effects without replacing module background images. */
+#workspaces button,
+#workspaces button:hover,
+#workspaces button.active {
+  background: transparent;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+#workspaces button:hover {
+  color: #fff;
+}
+
+#workspaces button.active,
+#workspaces button.active:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Disable theme animations throughout the workspace widget tree. */
+#workspaces,
+#workspaces *,
+#workspaces button,
+#workspaces button:hover,
+#workspaces button.active,
+#workspaces button.active:hover,
+#workspaces button *,
+#workspaces button:hover *,
+#workspaces button.active *,
+#workspaces button.active:hover * {
+  transition: none;
+  animation: none;
+  opacity: 1;
+}
+
+/* Set label colours explicitly so theme/pressed states cannot hide the numbers. */
+#workspaces button label {
+  color: #888;
+  text-shadow: none;
+}
+#workspaces button:hover label {
+  color: #fff;
+}
+#workspaces button.active label,
+#workspaces button.active:hover label {
+  color: #000;
+}
+
+/* Stable traffic columns; quiet background traffic stays visually subdued. */
+#custom-network { color: #fff; }
+#custom-network.idle,
+#custom-network.disconnected { color: #777; }

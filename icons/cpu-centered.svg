@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Symmetric chip and pins share the usage ring's exact (16, 16) centre. -->
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="12" y="12" width="8" height="8" rx="1"/>
+    <path d="M14 10v2m4-2v2M14 20v2m4-2v2M10 14h2m-2 4h2M20 14h2m-2 4h2"/>
+  </g>
+  <rect x="14" y="14" width="4" height="4" rx="0.5" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,349 @@
+{
+  // Shared modules and default layout; monitor overrides live in config.jsonc.
+  "layer": "top",
+  "height": 32,
+  "spacing": 8,
+  "modules-left": ["custom/arch", "ext/workspaces", "custom/weather", "custom/clipboard", "custom/screenshot", "custom/tailscale", "custom/network", "custom/system-spacer-right"],
+  "modules-center": ["clock"],
+  "expand-left": true,
+  "expand-right": true,
+  "modules-right": ["custom/usage-spacer-left", "group/hardware-stats", "group/now-playing", "pulseaudio", "custom/quickmenu"],
+
+  // Keep network stats beside Tailscale; flexible space follows the stats.
+  "custom/system-spacer-left": {
+    "format": " ",
+    "expand": true,
+    "tooltip": false
+  },
+  "custom/system-spacer-right": {
+    "format": " ",
+    "expand": true,
+    "tooltip": false
+  },
+
+  // Keep system and GPU stats together beside the music player.
+  // The portrait layout also uses these spacers around its clock.
+  "custom/usage-spacer-left": {
+    "format": " ",
+    "expand": true,
+    "tooltip": false
+  },
+  "custom/usage-spacer-right": {
+    "format": " ",
+    "expand": true,
+    "tooltip": false
+  },
+
+  // Use Wayland workspace activation; Waybar 0.15's Hyprland module uses legacy IPC.
+  "ext/workspaces": {
+    "format": "{name}",
+    "on-click": "activate",
+    "all-outputs": false
+  },
+
+  "clock": {
+    "min-length": 8,
+    "max-length": 8,
+    "format": "{:%I:%M %p}",
+    "tooltip-format": "{calendar}",
+    "interval": 60,
+    "on-click": "gsimplecal",
+
+    "calendar": {
+      "mode": "month",
+      "on-scroll": 1,
+      "format": {
+        "today": "<span color='#308c49'><b>{}</b></span>"
+      }
+    }
+  },
+
+  "custom/cpu-wheel": {
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c 'python3 ~/.config/waybar/scripts/usage-wheel.py cpu'",
+    "return-type": "json",
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip": true,
+    "on-click": "missioncenter"
+  },
+
+  "custom/ram-wheel": {
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c 'python3 ~/.config/waybar/scripts/usage-wheel.py ram'",
+    "return-type": "json",
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip": true,
+    "on-click": "missioncenter"
+  },
+
+  "custom/swap": {
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c 'python3 ~/.config/waybar/scripts/usage-wheel.py swap'",
+    "on-click": "missioncenter",
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip": true,
+    "return-type": "json"
+  },
+
+  "temperature": {
+  // Use your own path from the step above
+    "hwmon-path": "/sys/class/thermal/thermal_zone3/temp",
+    "critical-threshold": 80,
+    "format-critical": " {temperatureC}°C",
+    "format": " {temperatureC}°C",
+    "interval": 2,
+    "on-click": "missioncenter"
+  },
+
+  "pulseaudio": {
+    "min-length": 7,
+    "max-length": 7,
+    "align": 0.5,
+    "format": "󰕾  {volume}%",
+    "scroll-step": 2,
+    "on-click": "pavucontrol",
+    "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-middle": "pavucontrol"
+  },
+
+  // Keep the two stats groups adjacent without the bar's inter-module spacing.
+  "group/hardware-stats": {
+    "orientation": "horizontal",
+    "modules": ["group/system-stats", "group/gpu-stats"]
+  },
+
+  // Each stats group has one shared hover border and click action.
+  "group/system-stats": {
+    "orientation": "horizontal",
+    "modules": ["custom/cpu-wheel", "custom/temps", "custom/ram-wheel", "custom/swap"]
+  },
+
+  "group/gpu-stats": {
+    "orientation": "horizontal",
+    "modules": ["custom/gpu", "custom/gpu-temp", "custom/gpu-memory"]
+  },
+
+  "group/now-playing": {
+    "orientation": "horizontal",
+    "modules": ["custom/visualizer-left", "image#album-art", "custom/now-playing", "custom/media-previous", "custom/media-toggle", "custom/media-next", "custom/visualizer-right"]
+  },
+
+  "custom/visualizer-left": {
+    "exec": "python3 ~/.config/waybar/scripts/audio-visualizer.py --reverse",
+    "return-type": "json",
+    "restart-interval": 3,
+    "tooltip": false
+  },
+
+  "custom/visualizer-right": {
+    "exec": "python3 ~/.config/waybar/scripts/audio-visualizer.py",
+    "return-type": "json",
+    "restart-interval": 3,
+    "tooltip": false
+  },
+
+  "image#album-art": {
+    "exec": "printf '%s\\n' \"${XDG_CACHE_HOME:-$HOME/.cache}/waybar/now-playing/cover.png\"",
+    "size": 26,
+    "interval": 1,
+    "tooltip": false,
+    "on-click": "python3 ~/.config/waybar/scripts/now-playing.py play-pause"
+  },
+
+  "custom/now-playing": {
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c 'python3 ~/.config/waybar/scripts/now-playing.py --stream'",
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "return-type": "json",
+    "max-length": 22,
+    "tooltip": true,
+    "on-click": "python3 ~/.config/waybar/scripts/now-playing.py play-pause",
+    "on-click-right": "python3 ~/.config/waybar/scripts/now-playing.py next",
+    "on-click-middle": "python3 ~/.config/waybar/scripts/now-playing.py previous"
+  },
+
+  "custom/media-previous": {
+    "exec-on-event": false,
+    "restart-interval": 3,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 1 -- sh -c 'python3 ~/.config/waybar/scripts/now-playing.py --control previous'",
+    "return-type": "json",
+    "on-click": "python3 ~/.config/waybar/scripts/now-playing.py previous"
+  },
+
+  "custom/media-toggle": {
+    "exec-on-event": false,
+    "restart-interval": 3,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 1 -- sh -c 'python3 ~/.config/waybar/scripts/now-playing.py --control play-pause'",
+    "return-type": "json",
+    "on-click": "python3 ~/.config/waybar/scripts/now-playing.py play-pause"
+  },
+
+  "custom/media-next": {
+    "exec-on-event": false,
+    "restart-interval": 3,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 1 -- sh -c 'python3 ~/.config/waybar/scripts/now-playing.py --control next'",
+    "return-type": "json",
+    "on-click": "python3 ~/.config/waybar/scripts/now-playing.py next"
+  },
+
+  // Usage wheels retain exact readings in their tooltips.
+  "custom/gpu": {
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c 'python3 ~/.config/waybar/scripts/usage-wheel.py gpu'",
+    "return-type": "json",
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip": true,
+    "on-click": "missioncenter"
+  },
+
+  "custom/gpu-memory": {
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c 'python3 ~/.config/waybar/scripts/usage-wheel.py vram'",
+    "return-type": "json",
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip": true,
+    "on-click": "missioncenter"
+  },
+
+  "custom/gpu-temp": {
+    "exec-on-event": false,
+    "restart-interval": 3,
+    "min-length": 4,
+    "max-length": 4,
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 2 -- sh -c 'python3 ~/.config/waybar/scripts/temperature-status.py gpu'",
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "missioncenter"
+  },
+
+  "custom/weather": {
+    "exec-on-event": false,
+    "restart-interval": 3,
+    "max-length": 10,
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 1200 -- sh -c '~/.config/waybar/scripts/brisbane-weather.sh'",
+    "on-click": "gnome-weather",
+    "tooltip": true,
+    "return-type": "json"
+  },
+
+  "custom/power": {
+    "format": "󰐥",
+    "tooltip-format": "Logout / Power Menu",
+    "on-click": "~/.config/rofi/scripts/powermenu.sh"
+  },
+
+  "custom/quickmenu": {
+    "format": "󱂬 ",
+    "exec": "bash ~/.config/waybar/scripts/menu-active.sh quickmenu --watch",
+    "return-type": "json",
+    "hide-empty-text": false,
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip-format": "Quick Menu (Wi-Fi / Bluetooth / Power)",
+    "on-click": "~/.config/waybar/scripts/quick-controls-rofi.sh"
+  },
+
+  "custom/arch": {
+    "format": "󰣇 btw",        // Arch logo/glyph from Nerd Fonts
+    "exec": "bash ~/.config/waybar/scripts/menu-active.sh arch --watch",
+    "return-type": "json",
+    "hide-empty-text": false,
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip-format": "Arch App Launcher",
+    "on-click": "rofi -show drun"
+  },
+
+  
+  "custom/network": {
+    "min-length": 26,
+    "max-length": 26,
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c 'python3 ~/.config/waybar/scripts/network-usage.py'",
+    "return-type": "json",
+    "restart-interval": 3,
+    "exec-on-event": false,
+    "tooltip": true,
+    "on-click": "nm-connection-editor"
+  },
+
+  "custom/tailscale": {
+    "exec-on-event": false,
+    "restart-interval": 3,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 5 -- sh -c 'python3 ~/.config/waybar/scripts/tailscale-status.py'",
+    "on-click": "xdg-open http://100.100.100.100",
+    "return-type": "json",
+    "min-length": 2,
+    "max-length": 2,
+    "align": 0.5,
+    "tooltip": true
+  },
+
+  "custom/temps": {
+    "exec-on-event": false,
+    "restart-interval": 3,
+    "min-length": 4,
+    "max-length": 4,
+    "align": 0.5,
+    "exec": "python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 2 -- sh -c 'python3 ~/.config/waybar/scripts/temperature-status.py cpu'",
+    "return-type": "json",
+    "tooltip": true,
+    "on-click": "missioncenter"
+  },
+
+
+  "custom/wifi": {
+    "format": "󰤨 ",              // wifi icon from Nerd Font
+    "tooltip": "Wi-Fi picker",
+    "on-click": "nm-connection-editor"
+  },
+
+  "custom/bluetooth": {
+    "format": "󰂯 ",              // bluetooth icon from Nerd Font
+    "tooltip-format": "Bluetooth devices",
+    "on-click": "rofi-bluetooth"
+  },
+
+  "custom/clipboard": {
+    "format": "󰅌",               // clipboard icon (Nerd Font)
+    "min-length": 2,
+    "max-length": 2,
+    "align": 0.5,
+    "tooltip-format": "Clipboard History",
+    "on-click": "~/.config/rofi/scripts/clipboard-rofi.sh"
+  },
+
+  "custom/screenshot": {
+    "format": "󰹑",
+    "min-length": 2,
+    "max-length": 2,
+    "align": 0.5,
+    "tooltip-format": "Screenshot (LMB: area, RMB: full)",
+    "on-click": "~/.config/waybar/scripts/screenshot-area.sh",
+    "on-click-right": "~/.config/waybar/scripts/screenshot-full.sh"
+  },
+
+
+  "network#icon": {
+    "interval": 5,
+    "format-wifi": "{icon}",
+    "format-ethernet": "{icon}",
+    "format-disconnected": "󰖪 ",
+    "tooltip-format": "Interface: {ifname}\nIP: {ipaddr}\nUp: {bandwidthUpBytes} B/s\nDown: {bandwidthDownBytes} B/s",
+    "format-icons": {
+      "wifi": ["󰤯 ","󰤟 ","󰤢 ","󰤥 ","󰤨 "],
+      "ethernet": ["󰈀 "]
+    },
+    "on-click": "networkmanager_dmenu"
+  },
+
+
+  "reload_style_on_change": true
+}
