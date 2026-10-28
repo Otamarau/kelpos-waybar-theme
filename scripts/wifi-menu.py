@@ -46,6 +46,20 @@ def notify(message):
     subprocess.run(['notify-send', 'Wi-Fi', clean(message)], check=False)
 
 
+def refresh_notification(message, notification_id=None, finished=False):
+    args = ['notify-send', '--print-id', '--transient', '--app-name', 'Quick Menu',
+            '--expire-time', '2000' if finished else '15000']
+    if notification_id:
+        args += ['--replace-id', notification_id]
+    try:
+        result = subprocess.run(args + ['Wi-Fi', message], capture_output=True,
+                                text=True, timeout=2)
+        value = result.stdout.strip()
+        return value if result.returncode == 0 and value.isdigit() else None
+    except (OSError, subprocess.SubprocessError):
+        return None  # Notifications must never prevent refreshing the menu.
+
+
 def detached(arguments):
     # Rofi waits for inherited output pipes, so detach all descriptors.
     subprocess.Popen(arguments, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
@@ -230,9 +244,18 @@ def main():
             args = (['radio', 'wifi', 'on' if item['enabled'] else 'off'] if action == 'radio'
                     else ['device', 'wifi', 'list', '--rescan', 'yes'] if action == 'refresh'
                     else ['device', 'disconnect', item['interface']])
-            result = subprocess.run(['nmcli', '--wait', '8', *args], capture_output=True, text=True, timeout=12)
-            message = ('Network list refreshed.' if action == 'refresh'
-                       else 'Wi-Fi updated.') if result.returncode == 0 else clean(result.stderr.strip())
+            notification_id = refresh_notification('Refreshing networks…') if action == 'refresh' else None
+            try:
+                result = subprocess.run(['nmcli', '--wait', '8', *args], capture_output=True, text=True, timeout=12)
+                message = ('Network list refreshed.' if action == 'refresh'
+                           else 'Wi-Fi updated.') if result.returncode == 0 else clean(result.stderr.strip())
+            except (OSError, subprocess.SubprocessError):
+                if action == 'refresh':
+                    refresh_notification('Could not refresh networks.', notification_id, finished=True)
+                raise
+            if action == 'refresh':
+                refresh_notification('Networks refreshed.' if result.returncode == 0
+                                     else 'Could not refresh networks.', notification_id, finished=True)
     show(NM.Client.new(None), message)
 
 

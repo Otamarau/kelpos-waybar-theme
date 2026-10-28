@@ -38,6 +38,28 @@ class WifiMenuTests(unittest.TestCase):
         self.client.wireless_hardware_get_enabled.return_value = True
         self.item = {'name': 'Home', 'interface': 'wlan0', 'bssid': '/ap/1'}
 
+    def test_refresh_notifies_before_scan_and_replaces_on_completion(self):
+        events = []
+        def notification(message, *args, **kwargs):
+            events.append(message)
+            return '42'
+        def scan(*args, **kwargs):
+            events.append('scan')
+            return Mock(returncode=0, stderr='')
+        with patch.dict(wifi.os.environ, ROFI_RETV='1',
+                        ROFI_INFO=wifi.encode({'action': 'refresh'})), \
+             patch.object(wifi, 'refresh_notification', side_effect=notification) as notify, \
+             patch.object(wifi.subprocess, 'run', side_effect=scan), \
+             patch.object(wifi.NM.Client, 'new', return_value=self.client), \
+             patch.object(wifi, 'show'):
+            wifi.main()
+        self.assertEqual(events, ['Refreshing networks…', 'scan', 'Networks refreshed.'])
+        notify.assert_called_with('Networks refreshed.', '42', finished=True)
+
+    def test_missing_notification_service_is_nonfatal(self):
+        with patch.object(wifi.subprocess, 'run', side_effect=FileNotFoundError):
+            self.assertIsNone(wifi.refresh_notification('Refreshing networks…'))
+
     def test_connected_first_and_duplicate_ap_collapse(self):
         self.device.get_access_points.return_value = [
             access_point('Home', 99, '/ap/2', wifi.SEC.KEY_MGMT_PSK),

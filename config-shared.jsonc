@@ -109,21 +109,10 @@
     "on-click-middle": "pavucontrol"
   },
 
-  // Keep the two stats groups adjacent without the bar's inter-module spacing.
+  // Hardware readings share one hover border and Mission Center action.
   "group/hardware-stats": {
     "orientation": "horizontal",
-    "modules": ["group/system-stats", "group/gpu-stats"]
-  },
-
-  // Each stats group has one shared hover border and click action.
-  "group/system-stats": {
-    "orientation": "horizontal",
-    "modules": ["custom/cpu-wheel", "custom/temps", "custom/ram-wheel", "custom/swap"]
-  },
-
-  "group/gpu-stats": {
-    "orientation": "horizontal",
-    "modules": ["custom/gpu", "custom/gpu-temp", "custom/gpu-memory"]
+    "modules": ["custom/cpu-wheel", "custom/temps", "custom/ram-wheel", "custom/swap", "custom/gpu", "custom/gpu-temp", "custom/gpu-memory"]
   },
 
   "group/now-playing": {

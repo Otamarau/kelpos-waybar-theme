@@ -272,35 +272,32 @@ window#waybar {
   padding: 2px 4px;
 }
 
-/* Each stats group acts as one button with a shared hover border. */
-#system-stats,
-#system-stats *,
-#gpu-stats,
-#gpu-stats * {
+/* Hardware readings act as one button with a shared hover border. */
+#hardware-stats,
+#hardware-stats * {
   transition: none;
   animation: none;
 }
 
-#system-stats,
-#gpu-stats {
+#hardware-stats {
   border-radius: 8px;
 }
 
-#system-stats #cpu,
-#system-stats #custom-temps,
-#system-stats #memory,
-#system-stats #custom-swap,
-#gpu-stats #custom-gpu,
-#gpu-stats #custom-gpu-memory,
-#gpu-stats #custom-gpu-temp {
+#hardware-stats #cpu,
+#hardware-stats #custom-temps,
+#hardware-stats #memory,
+#hardware-stats #custom-swap,
+#hardware-stats #custom-gpu,
+#hardware-stats #custom-gpu-memory,
+#hardware-stats #custom-gpu-temp {
   background-color: transparent;
   color: inherit;
   border-radius: 0;
 }
 
 /* Text readings use the same six-pixel inter-item gap as the wheels. */
-#system-stats #custom-temps,
-#gpu-stats #custom-gpu-temp {
+#hardware-stats #custom-temps,
+#hardware-stats #custom-gpu-temp {
   font-size: 15px;
   min-height: 28px;
   padding: 0;
@@ -308,17 +305,16 @@ window#waybar {
 }
 
 /* Compact gauges keep the existing group hover and Mission Center action. */
-#system-stats #custom-temps.cool,
-#gpu-stats #custom-gpu-temp.cool { color: #308c49; }
-#system-stats #custom-temps.warm,
-#gpu-stats #custom-gpu-temp.warm { color: #e0a12b; }
-#system-stats #custom-temps.hot,
-#gpu-stats #custom-gpu-temp.hot { color: #ef5350; }
-#system-stats #custom-temps.unavailable,
-#gpu-stats #custom-gpu-temp.unavailable { color: #999; }
+#hardware-stats #custom-temps.cool,
+#hardware-stats #custom-gpu-temp.cool { color: #308c49; }
+#hardware-stats #custom-temps.warm,
+#hardware-stats #custom-gpu-temp.warm { color: #e0a12b; }
+#hardware-stats #custom-temps.hot,
+#hardware-stats #custom-gpu-temp.hot { color: #ef5350; }
+#hardware-stats #custom-temps.unavailable,
+#hardware-stats #custom-gpu-temp.unavailable { color: #999; }
 
-#system-stats .usage-wheel,
-#gpu-stats .usage-wheel {
+#hardware-stats .usage-wheel {
   min-width: 32px;
   min-height: 28px;
   padding: 0;
@@ -333,16 +329,7 @@ window#waybar {
   background-position: center;
   background-repeat: no-repeat;
 }
-/* The two group borders occupy 4px of the usual 6px inter-item gap. */
-#system-stats #custom-swap {
-  margin-right: 1px;
-}
-#gpu-stats #custom-gpu {
-  margin-left: 1px;
-}
-
-#system-stats .usage-wheel.unavailable,
-#gpu-stats .usage-wheel.unavailable {
+#hardware-stats .usage-wheel.unavailable {
   background-image: url("icons/usage-wheels/0.svg");
   color: #999;
 }
@@ -368,8 +355,7 @@ window#waybar {
 #memory,
 #temperature,
 #custom-tailscale,
-#system-stats,
-#gpu-stats {
+#hardware-stats {
   border: 2px solid transparent;
   /* Fade out without changing the reserved border space. */
   transition: border-color 0.25s ease-out;
@@ -395,8 +381,7 @@ window#waybar {
 #memory:hover,
 #temperature:hover,
 #custom-tailscale:hover,
-#system-stats:hover,
-#gpu-stats:hover,
+#hardware-stats:hover,
 #workspaces button.active,
 #custom-arch.active,
 #custom-quickmenu.active {
