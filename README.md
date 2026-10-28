@@ -76,7 +76,7 @@ Install the dependencies for the features you use, or remove those modules from 
 
 ## Network menu
 
-The Quick Menu opens to the network tab. It displays wired connections and, when NetworkManager exposes a Wi-Fi adapter, nearby wireless networks. The connected Wi-Fi network is listed before other networks, which are sorted by signal strength.
+The Quick Menu opens to the power tab; select the network tab for network controls. It displays wired connections and, when NetworkManager exposes a Wi-Fi adapter, nearby wireless networks. The connected Wi-Fi network is listed before other networks, which are sorted by signal strength.
 
 Saved profiles are reused. New personal Wi-Fi connections use a masked Rofi password prompt and pass credentials to libnm in memory; the script does not put passwords in shell arguments or write its own password files. NetworkManager manages saved connection profiles. Hidden networks, enterprise authentication and other advanced setup remain available through the full network menu and Connection Editor.
 
