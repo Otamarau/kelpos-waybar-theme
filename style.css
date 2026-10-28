@@ -390,6 +390,16 @@ window#waybar {
   transition: border-color 0s;
 }
 
+/* Highlight launchers while their Rofi menus are open. */
+#custom-arch.active,
+#custom-arch.active:hover,
+#custom-quickmenu.active,
+#custom-quickmenu.active:hover {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+}
+
 /* Suppress GTK button theme effects without replacing module background images. */
 #workspaces button,
 #workspaces button:hover,
