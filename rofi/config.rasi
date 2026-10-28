@@ -2,7 +2,7 @@ configuration {
 modi: "drun,window,clipboard:~/.local/bin/rofi-clipboard,screenshot:~/.config/rofi/scripts/screenshot-rofi.sh,calc";
     show-icons: true;
     drun-display-format: "{icon} {name}";
-    icon-theme: "Papirus";
+    icon-theme: "Adwaita";
 
     display-drun: "󰀻 ";
     display-window: " ";

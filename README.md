@@ -32,7 +32,10 @@ The `rofi/` directory is a snapshot of the accompanying Rofi configuration, them
 mkdir -p ~/.config/rofi ~/.local/bin
 cp -a rofi/. ~/.config/rofi/
 install -m 755 bin/rofi-clipboard bin/rofi-toggle.sh ~/.local/bin/
+bash scripts/install-window-icons.sh
 ```
+
+Rofi uses the installed Adwaita theme and application icons from hicolor. The icon setup script adds aliases for VS Code and Monero because the Wayland window switcher looks up lowercase window application IDs.
 
 Launch with `rofi -show drun`, or use `~/.local/bin/rofi-toggle.sh` as a keyboard shortcut. The Quick Menu remains at `~/.config/waybar/scripts/quick-controls-rofi.sh`.
 
@@ -53,7 +56,7 @@ The configuration was developed with Waybar 0.15.0, GTK 3, Rofi script mode and 
 | Bluetooth | bluetoothctl, Overskride |
 | Screenshots | grim, slurp, wl-copy, notify-send |
 | Rofi clipboard previews | cliphist, wl-clipboard, ImageMagick (`magick`); clipboard history must be collected by your session |
-| Rofi calculator / app icons | Rofi calc plugin, Papirus icon theme |
+| Rofi calculator / app icons | Rofi calc plugin, Adwaita icon theme |
 | Standalone package menu | yay, kitty; launch `~/.config/rofi/scripts/pkgmanager.sh` separately |
 | Weather | curl, jq (preferred), gnome-weather for the click action |
 | Other click actions | missioncenter, gsimplecal, tailscale, hyprctl, hyprlock |

@@ -202,8 +202,9 @@ def search_prompt(source):
     frame({'source': source},
           f'Search: {source} · type a package or description and press Enter')
     # Rofi 2.0 passes custom text as argv[1], but has no ROFI_INPUT.
-    # Keep a nonselectable row so the menu stays open without consuming Enter.
-    row('Type your search above…', {}, nonselectable='true', permanent='true')
+    # Keep the mode open initially, but let typing filter this placeholder out.
+    # A permanent nonselectable row blocks Enter from accepting custom text.
+    row('…', {}, nonselectable='true')
 
 
 def relevance(package, query):
@@ -260,13 +261,13 @@ def search_packages(query, source, progress):
 def show_results(state, message=''):
     fetch_missing_icons(state.get('packages', []))
     frame(state, message or f'Results for “{state.get("query", "")}" · select for details')
+    row('New search / change source', {'action': 'home'})
     installed = set(run(['pacman', '-Qq']).stdout.splitlines())
     for package in state.get('packages', []):
         suffix = ' ✓ installed' if package['name'] in installed else ''
         row(f'{package["name"]} [{package["repo"]}] {package["version"]}{suffix}'
             f' — {package["desc"].strip()}', {'action': 'details', 'package': package},
             icon=package_icon(package['name']))
-    row('New search / change source', {'action': 'home'})
 
 
 def target(package):
@@ -296,10 +297,10 @@ def show_details(state, package):
         message += ' · Details unavailable: ' + result.stderr[:200]
     frame(state, message)
     header('no-custom', 'true')
+    row('New search / change source', {'action': 'home'})
     row('Install ' + package['name'] + ' in terminal',
         {'action': 'install', 'package': package}, icon=package_icon(package['name']))
     row('Back to results', {'action': 'results'})
-    row('New search / change source', {'action': 'home'})
 
 
 def install(package):
