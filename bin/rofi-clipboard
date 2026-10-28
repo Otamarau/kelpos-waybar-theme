@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -o pipefail
+umask 077
+
+case "${ROFI_RETV:-0}" in
+  1)
+    # Script-mode selections arrive as an argument, not on stdin.
+    [[ -n ${1:-} ]] || exit 0
+    cliphist decode <<< "$1" | wl-copy
+    exit
+    ;;
+  0) ;;
+  *) exit 0 ;;
+esac
+
+printf '\0no-custom\x1ftrue\n'
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/rofi-clipboard-thumbnails"
+mkdir -p "$cache_dir" || exit 1
+history=$(cliphist list) || exit 1
+declare -A retained
+image_pattern='^([0-9]+)[[:space:]]+\[\[ binary data .* (png|jpe?g|gif|webp|bmp|tiff?|ico) .+\]\]$'
+
+while IFS= read -r entry; do
+  [[ -n $entry ]] || continue
+  if [[ $entry =~ $image_pattern ]]; then
+    id=${BASH_REMATCH[1]}
+    thumbnail="$cache_dir/$id.png"
+    retained[$id]=1
+    if [[ ! -s $thumbnail ]]; then
+      temporary=$(mktemp "$cache_dir/.preview.XXXXXX") || exit 1
+      # Cache a small preview; selection always decodes the full original.
+      if cliphist decode <<< "$entry" |
+          magick '-[0]' -auto-orient -thumbnail '192x128>' "png:$temporary" 2>/dev/null; then
+        mv -f "$temporary" "$thumbnail"
+      else
+        rm -f "$temporary"
+      fi
+    fi
+    if [[ -s $thumbnail ]]; then
+      printf '%s\0icon\x1f%s\x1fmeta\x1fscreenshot image\x1factive\x1ftrue\n' "$entry" "$thumbnail"
+      continue
+    fi
+  fi
+  printf '%s\n' "$entry"
+done <<< "$history"
+
+# Remove previews when their entries leave clipboard history.
+for thumbnail in "$cache_dir"/*.png; do
+  [[ -f $thumbnail ]] || continue
+  id=${thumbnail##*/}
+  id=${id%.png}
+  [[ -n ${retained[$id]:-} ]] || rm -f "$thumbnail"
+done

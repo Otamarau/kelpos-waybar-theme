@@ -1,6 +1,6 @@
 # Waybar
 
-Personal Waybar configuration for Arch Linux and Hyprland, with compact hardware gauges and a Rofi network menu.
+Personal Waybar and Rofi configuration for Arch Linux and Hyprland, with compact hardware gauges and a Rofi network menu.
 
 ## Features
 
@@ -24,6 +24,20 @@ Run:
 waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css
 ```
 
+### Install the included Rofi setup
+
+The `rofi/` directory is a snapshot of the accompanying Rofi configuration, themes and scripts. Back up any existing `~/.config/rofi` files before copying it into place. From this repository's root:
+
+```sh
+mkdir -p ~/.config/rofi ~/.local/bin
+cp -a rofi/. ~/.config/rofi/
+install -m 755 bin/rofi-clipboard bin/rofi-toggle.sh ~/.local/bin/
+```
+
+Launch with `rofi -show drun`, or use `~/.local/bin/rofi-toggle.sh` as a keyboard shortcut. The Quick Menu remains at `~/.config/waybar/scripts/quick-controls-rofi.sh`.
+
+The copied Rofi files are separate from the repository: after editing your live `~/.config/rofi` setup, copy those changes back into `rofi/` before committing them. Clipboard history and generated image previews are not included.
+
 The configuration was developed with Waybar 0.15.0, GTK 3, Rofi script mode and Python 3. Python uses PyGObject with the `NM`, `Playerctl`, `GdkPixbuf`, `GLib` and `Pango` introspection libraries. No pip virtual environment is required when these are supplied by the distribution.
 
 ### Dependencies by feature
@@ -38,6 +52,9 @@ The configuration was developed with Waybar 0.15.0, GTK 3, Rofi script mode and 
 | Hardware monitoring | Linux procfs/sysfs; lm-sensors for the legacy CPU-temperature script |
 | Bluetooth | bluetoothctl, Overskride |
 | Screenshots | grim, slurp, wl-copy, notify-send |
+| Rofi clipboard previews | cliphist, wl-clipboard, ImageMagick (`magick`); clipboard history must be collected by your session |
+| Rofi calculator / app icons | Rofi calc plugin, Papirus icon theme |
+| Standalone package menu | yay, kitty; launch `~/.config/rofi/scripts/pkgmanager.sh` separately |
 | Weather | curl, jq (preferred), gnome-weather for the click action |
 | Other click actions | missioncenter, gsimplecal, tailscale, hyprctl, hyprlock |
 
@@ -49,8 +66,8 @@ Install the dependencies for the features you use, or remove those modules from 
 - GPU gauges currently require AMD-style `gpu_busy_percent` and VRAM counters in `/sys/class/drm`.
 - CPU temperatures support `coretemp`, `k10temp` and `zenpower` sensors. Temperature colours use the sensors' reported limits, with fallback display thresholds when limits are absent.
 - The weather script uses IP geolocation, falling back to Brisbane, Australia. It queries ipapi.co and weather providers Open-Meteo, wttr.in and met.no.
-- Clipboard and some legacy click actions reference scripts under `~/.config/rofi/scripts/`; those external scripts are not included here. Update the actions to your own launcher/clipboard setup.
-- The Quick Menu inherits your existing Rofi theme. Its prompt font/padding override is contained in `scripts/quick-controls-rofi.sh`.
+- Clipboard and other click actions reference `~/.config/rofi/scripts/`; install the included `rofi/` files at that path. The clipboard mode also references `~/.local/bin/rofi-clipboard`.
+- The Quick Menu inherits the Rofi theme (`rofi/mytheme.rasi` in this repository). Its prompt font/padding override is contained in `scripts/quick-controls-rofi.sh`.
 - The power menu includes shutdown/reboot and a Hyprland Lua logout command. Review `scripts/quick-controls-power.sh` for your compositor before using it.
 - Tailscale's click action opens its local service address, `http://100.100.100.100`.
 
@@ -70,6 +87,8 @@ The tab also provides refresh, Wi-Fi radio and disconnect actions. No wireless n
 - `usage-wheels.css`, `icons/`: gauge backgrounds and icons.
 - `scripts/`: live metrics, menus and desktop actions. Some older text-based metric scripts are retained but are no longer used by the main layout.
 - `tests/`: simulated Wi-Fi menu and connection-flow tests.
+- `rofi/`: launcher configuration, themes, favourites and clipboard/screenshot/package/power menus.
+- `bin/`: clipboard thumbnail helper and launcher toggle for `~/.local/bin`.
 
 CSS changes reload automatically. Restart Waybar after changing its JSON configuration or a continuously running Python script. Reopen Rofi after menu changes.
 
@@ -77,7 +96,7 @@ CSS changes reload automatically. Restart Waybar after changing its JSON configu
 
 ```sh
 python3 -m unittest discover -s tests -v
-for script in scripts/*.sh; do bash -n "$script"; done
+for script in scripts/*.sh rofi/scripts/*.sh bin/*; do bash -n "$script"; done
 ```
 
 The Wi-Fi tests use simulated NetworkManager devices and do not connect, disconnect or toggle any radios. Live behaviour still depends on your desktop services, hardware and installed fonts.

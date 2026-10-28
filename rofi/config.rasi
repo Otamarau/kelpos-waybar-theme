@@ -1,0 +1,31 @@
+configuration {
+modi: "drun,window,clipboard:~/.local/bin/rofi-clipboard,screenshot:~/.config/rofi/scripts/screenshot-rofi.sh,calc";
+    show-icons: true;
+    drun-display-format: "{icon} {name}";
+    icon-theme: "Papirus";
+
+    display-drun: "󰀻 ";
+    display-window: " ";
+    display-calc: " ";
+    display-clipboard: "󰅌 ";
+    display-screenshot: "󰹑 ";
+
+    calc-command: "echo -n '{result}' | wl-copy";
+
+    sidebar-mode: true;
+
+    kb-move-char-back: "";
+    kb-move-char-forward: "";
+
+    kb-mode-next: "Right";
+    kb-mode-previous: "Left";
+
+    kb-accept-alt: "Super+c";
+
+}
+
+
+
+
+/* use ONLY your theme */
+@theme "mytheme"

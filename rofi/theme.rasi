@@ -1,0 +1,3 @@
+element-text, element-icon {
+    spacing: 10px;
+}

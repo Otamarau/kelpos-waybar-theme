@@ -1,0 +1,129 @@
+/* ROUNDED THEME FOR ROFI */
+/* Author: Newman Sanchez (https://github.com/newmanls) */
+
+* {
+    font:   "JetBrainsMono 12";
+
+    background-color:   transparent;
+    text-color:         @fg0;
+
+    margin:     0px;
+    padding:    0px;
+    spacing:    0px;
+}
+
+
+* {
+    bg0:    black;
+    bg1:    white;
+    bg2:    #3D3D3D80;
+    bg3:    white;
+    fg0:    white;
+    fg1:    #FFFFFF;
+    fg2:    black;
+    fg3:    black;
+}
+
+
+window {
+    location:       north;
+    y-offset:       calc(50% - 176px);
+    width:          600px;
+    border-radius:  24px;
+
+    background-color:   #000000CC;
+    opacity: 80%;
+
+    
+}
+
+mainbox {
+    padding:    12px;
+}
+
+inputbar {
+    background-color:   @bg1;
+    border-color:       @bg3;
+
+    border:         2px;
+    border-radius:  8px;
+
+    padding:    8px 16px;
+    spacing:    8px;
+    children:   [ prompt, entry ];
+}
+
+prompt {
+    text-color: black;
+}
+
+entry {
+    placeholder: "";
+    placeholder-color:  black;
+    text-color: black;
+}
+
+message {
+    margin:             12px 0 0;
+    border-radius:      16px;
+    border-color:       @bg2;
+    background-color:   @bg2;
+}
+
+textbox {
+    padding:    8px 24px;
+}
+
+listview {
+    background-color:   transparent;
+
+    margin:     12px 0 0;
+    lines:      8;
+    columns:    1;
+
+    fixed-height: false;
+}
+
+element {
+    padding:        8px 16px;
+    spacing:        8px;
+    border-radius:  8px;
+}
+
+
+element selected normal, element selected active {
+    background-color:   @bg3;
+    text-color: black;
+}
+
+element-icon {
+    size:           1em;
+    vertical-align: 0.5;
+}
+
+/* Clipboard image entries are marked active by rofi-clipboard. */
+element-icon normal active, element-icon alternate active, element-icon selected active {
+    size: 64px;
+}
+
+element-text {
+    text-color: inherit;
+    
+}
+
+
+mode-switcher {
+    spacing: 8px;
+    margin: 12px 0 0;
+}
+
+button {
+    padding: 6px 10px;
+    border-radius: 8px;
+    text-color: white;
+}
+
+button selected {
+    background-color: @bg3;
+    text-color: black;
+}
