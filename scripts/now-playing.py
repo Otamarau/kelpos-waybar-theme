@@ -20,6 +20,7 @@ from gi.repository import GdkPixbuf, GLib, Playerctl
 
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "waybar/now-playing"
 MAX_ART_BYTES = 5 * 1024 * 1024
+ART_SIZE = 256
 TITLE_WIDTH = 22
 # GTK needs 500ms without tooltip queries before displaying the first tooltip.
 # Waybar rewrites tooltip markup on every custom-module update, even unchanged.
@@ -60,13 +61,13 @@ def update_cover(url):
             state = json.loads(state_file.read_text())
         except (OSError, ValueError):
             state = {}
-        if state.get("url") == url:
+        if state.get("url") == url and state.get("size") == ART_SIZE:
             if cover.exists() or time.time() - state.get("attempt", 0) < 60:
                 return
 
         # Never leave the previous track's cover beside the new title.
         cover.unlink(missing_ok=True)
-        state_file.write_text(json.dumps({"url": url, "attempt": time.time()}))
+        state_file.write_text(json.dumps({"url": url, "attempt": time.time(), "size": ART_SIZE}))
         if not url:
             return
         temporary = CACHE / "cover.tmp.png"
@@ -84,7 +85,7 @@ def update_cover(url):
             if len(data) > MAX_ART_BYTES:
                 return
             loader = GdkPixbuf.PixbufLoader.new()
-            loader.set_size(52, 52)
+            loader.set_size(ART_SIZE, ART_SIZE)
             loader.write(data)
             loader.close()
             loader.get_pixbuf().savev(str(temporary), "png", [], [])

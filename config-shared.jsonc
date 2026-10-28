@@ -7,9 +7,9 @@
   "modules-center": ["clock"],
   "expand-left": true,
   "expand-right": true,
-  "modules-right": ["custom/usage-spacer-left", "group/hardware-stats", "group/now-playing", "pulseaudio", "custom/quickmenu"],
+  "modules-right": ["custom/usage-spacer-left", "group/now-playing", "group/hardware-stats", "pulseaudio", "custom/quickmenu"],
 
-  // Keep network stats beside Tailscale; flexible space follows the stats.
+  // Keep network stats beside Tailscale; flexible space follows.
   "custom/system-spacer-left": {
     "format": " ",
     "expand": true,
@@ -21,8 +21,8 @@
     "tooltip": false
   },
 
-  // Keep system and GPU stats together beside the music player.
-  // The portrait layout also uses these spacers around its clock.
+  // Flexible space precedes the media and control modules.
+  // The clock has its own centred section on both monitor layouts.
   "custom/usage-spacer-left": {
     "format": " ",
     "expand": true,
@@ -128,7 +128,7 @@
 
   "group/now-playing": {
     "orientation": "horizontal",
-    "modules": ["custom/visualizer-left", "image#album-art", "custom/now-playing", "custom/media-previous", "custom/media-toggle", "custom/media-next", "custom/visualizer-right"]
+    "modules": ["custom/visualizer-left", "cffi/album-art", "custom/now-playing", "custom/media-previous", "custom/media-toggle", "custom/media-next", "custom/visualizer-right"]
   },
 
   "custom/visualizer-left": {
@@ -145,11 +145,8 @@
     "tooltip": false
   },
 
-  "image#album-art": {
-    "exec": "printf '%s\\n' \"${XDG_CACHE_HOME:-$HOME/.cache}/waybar/now-playing/cover.png\"",
-    "size": 26,
-    "interval": 1,
-    "tooltip": false,
+  "cffi/album-art": {
+    "module_path": "/home/otamarau/.config/waybar/cffi/album-art.so",
     "on-click": "python3 ~/.config/waybar/scripts/now-playing.py play-pause"
   },
 
