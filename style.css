@@ -334,6 +334,12 @@ window#waybar {
   color: #999;
 }
 
+/* Optical centring for the CPU font glyph; retain the 28px total height. */
+#hardware-stats #custom-cpu-wheel {
+  min-height: 27px;
+  padding-top: 1px;
+}
+
 /* Reserve borders in every state so hover and activation never resize modules. */
 #workspaces button,
 #custom-power,
