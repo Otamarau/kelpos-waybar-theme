@@ -3,7 +3,7 @@
   "layer": "top",
   "height": 32,
   "spacing": 8,
-  "modules-left": ["custom/arch", "ext/workspaces", "custom/weather", "custom/clipboard", "custom/screenshot", "custom/tailscale", "custom/network", "custom/system-spacer-right"],
+  "modules-left": ["custom/arch", "ext/workspaces", "cffi/workspace-cursor", "custom/weather", "custom/clipboard", "custom/screenshot", "custom/tailscale", "custom/network", "custom/system-spacer-right"],
   "modules-center": ["clock"],
   "expand-left": true,
   "expand-right": true,
@@ -35,7 +35,12 @@
   },
 
   // Use Wayland workspace activation; Waybar 0.15's Hyprland module uses legacy IPC.
+  "cffi/workspace-cursor": {
+    "module_path": "/home/otamarau/.config/waybar/cffi/workspace-cursor.so"
+  },
+
   "ext/workspaces": {
+    "cursor": false,
     "format": "{name}",
     "on-click": "activate",
     "all-outputs": false

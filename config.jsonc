@@ -9,7 +9,7 @@
     "spacing": 8,
     "expand-left": true,
     "fixed-center": true,
-    "modules-left": ["custom/arch", "ext/workspaces", "custom/weather", "custom/clipboard", "custom/screenshot", "custom/tailscale", "custom/network"],
+    "modules-left": ["custom/arch", "ext/workspaces", "cffi/workspace-cursor", "custom/weather", "custom/clipboard", "custom/screenshot", "custom/tailscale", "custom/network"],
     "modules-center": ["clock"],
     "modules-right": ["custom/usage-spacer-left", "group/hardware-stats", "pulseaudio", "custom/quickmenu"],
     "include": "~/.config/waybar/config-shared.jsonc"

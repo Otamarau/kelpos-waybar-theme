@@ -422,7 +422,8 @@ window#waybar {
 #workspaces button.active,
 #workspaces button.active:hover {
   background: #fff;
-  border-color: #fff;
+  background-clip: padding-box;
+  border-color: transparent;
   color: #000;
 }
 
