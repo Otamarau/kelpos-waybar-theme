@@ -1,4 +1,14 @@
 configuration {
+    disable-history: false;
+    max-history-size: 200;
+    sort: true;
+    sorting-method: "fzf";
+    matching: "fuzzy";
+    drun-match-fields: "name";
+    drun {
+        /* Rofi 2.0: use Exec so D-Bus apps also pass through launch tracking. */
+        DBusActivatable: false;
+    }
 modi: "drun,window,clipboard:~/.local/bin/rofi-clipboard,screenshot:~/.config/rofi/scripts/screenshot-rofi.sh,calc";
     show-icons: true;
     drun-display-format: "{icon} {name}";

@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+"""Record the desktop ID supplied by drun, then execute its parsed command."""
+import fcntl
+import json
+import os
+from pathlib import Path
+import shutil
+import shlex
+import sys
+import tempfile
+
+
+def desktop_id(argv):
+    # Older Rofi builds do not export DESKTOP_ENTRY_ID. Resolve their command
+    # against GIO's installed desktop entries, preferring the longest match.
+    import gi
+    gi.require_version("Gio", "2.0")
+    from gi.repository import Gio
+    matches = []
+    for app in Gio.AppInfo.get_all():
+        if not app.should_show() or not app.get_id():
+            continue
+        try:
+            command = shlex.split(app.get_commandline() or "")
+        except ValueError:
+            continue
+        command = [part for part in command if not part.startswith("%")]
+        if not command or len(command) > len(argv):
+            continue
+        if shutil.which(command[0]) != shutil.which(argv[0]):
+            continue
+        if command[1:] == argv[1:len(command)]:
+            matches.append((len(command), app.get_id()))
+    return max(matches)[1] if matches else None
+
+
+def record(app_id):
+    state = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "rofi"
+    state.mkdir(parents=True, exist_ok=True)
+    with (state / "recent.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        path = state / "recent-apps.json"
+        previous = json.loads(path.read_text()) if path.exists() else []
+        names = [app_id] + [name for name in previous if name != app_id]
+        with tempfile.NamedTemporaryFile(mode="w", dir=state, delete=False) as f:
+            json.dump(names[:200], f)
+            temp = f.name
+        os.replace(temp, path)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2 or not shutil.which(sys.argv[1]):
+        sys.exit(127)
+    app_id = os.environ.get("DESKTOP_ENTRY_ID") or desktop_id(sys.argv[1:])
+    if app_id:
+        record(app_id)
+    os.execvp(sys.argv[1], sys.argv[1:])

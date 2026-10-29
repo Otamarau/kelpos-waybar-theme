@@ -1,0 +1,59 @@
+#!/usr/bin/python3
+"""Run native drun with launch history ordered by recency, not frequency."""
+import os
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+
+def read_history(path):
+    entries = {}
+    if path.exists():
+        for line in path.read_text().splitlines():
+            count, separator, name = line.partition(" ")
+            if separator and count.isdecimal() and name:
+                entries[name] = int(count)
+    return entries
+
+
+def write_history(path, names):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False) as f:
+        for name in names:
+            f.write(f"0 {name}\n")
+        temp = f.name
+    os.replace(temp, path)
+
+
+def main():
+    cache = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    history = cache / "rofi3.druncache"
+    before = read_history(history)
+    state = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "rofi/recent-apps.json"
+    recent = json.loads(state.read_text()) if state.exists() else []
+    before = dict.fromkeys(recent + list(before), 0)
+    # drun reads file order; equal counts let us identify the next launch.
+    write_history(history, before)
+    try:
+        result = subprocess.run([
+            "rofi", "-show", "drun", *sys.argv[1:],
+            "-no-disable-history", "-max-history-size", "200", "-sort",
+            "-drun-DBusActivatable", "false",
+            "-run-command", str(Path.home() / ".local/bin/rofi-record-launch") + " {cmd}",
+        ])
+    finally:
+        after = read_history(history)
+        launched = [name for name, count in after.items() if count > 0]
+        # Preserve prior recency, honour Shift+Delete, and retain new entries.
+        ordered = launched + [name for name in before if name in after and name not in launched]
+        ordered += [name for name in after if name not in ordered]
+        recent = json.loads(state.read_text()) if state.exists() else []
+        ordered = recent + [name for name in ordered if name not in recent]
+        write_history(history, ordered[:200])
+    return result.returncode
+
+
+if __name__ == "__main__":
+    sys.exit(main())

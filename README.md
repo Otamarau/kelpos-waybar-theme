@@ -31,13 +31,24 @@ The `rofi/` directory is a snapshot of the accompanying Rofi configuration, them
 ```sh
 mkdir -p ~/.config/rofi ~/.local/bin
 cp -a rofi/. ~/.config/rofi/
-install -m 755 bin/rofi-clipboard bin/rofi-toggle.sh ~/.local/bin/
+install -m 755 bin/rofi-clipboard bin/rofi-toggle.sh bin/rofi-recent bin/rofi-record-launch ~/.local/bin/
 bash scripts/install-window-icons.sh
 ```
 
 Rofi uses the installed Adwaita theme and application icons from hicolor. The icon setup script adds aliases for VS Code and Monero because the Wayland window switcher looks up lowercase window application IDs.
 
-Launch with `rofi -show drun`, or use `~/.local/bin/rofi-toggle.sh` as a keyboard shortcut. The Quick Menu remains at `~/.config/waybar/scripts/quick-controls-rofi.sh`.
+Launch with `~/.local/bin/rofi-recent`, or use `~/.local/bin/rofi-toggle.sh` as a keyboard shortcut. The Quick Menu remains at `~/.config/waybar/scripts/quick-controls-rofi.sh`.
+
+The app launcher lists recently launched apps first when the search is empty. Typing searches app names with fuzzy matching and ranks results by match quality. Launches through this wrapper are recorded in `$XDG_STATE_HOME/rofi/recent-apps.json` (default `~/.local/state/rofi/recent-apps.json`). Existing Rofi history supplies the initial order; launches outside this wrapper are not tracked.
+
+For Hyprland, use these bindings (replace existing bindings for the same keys):
+
+```ini
+bind = SUPER, SPACE, exec, ~/.local/bin/rofi-toggle.sh
+bind = SUPER, R, exec, ~/.local/bin/rofi-recent
+```
+
+This setup targets Rofi 2.0. Its `drun.DBusActivatable` option is disabled so applications such as GNOME Files use their desktop entry's command and pass through the recorder. The recorder uses GIO to identify desktop entries on builds that do not export `DESKTOP_ENTRY_ID`. Personal launch history is not included in the repository.
 
 The copied Rofi files are separate from the repository: after editing your live `~/.config/rofi` setup, copy those changes back into `rofi/` before committing them. Clipboard history and generated image previews are not included.
 
@@ -57,6 +68,7 @@ The configuration was developed with Waybar 0.15.0, GTK 3, Rofi script mode and 
 | Screenshots | grim, slurp, wl-copy, notify-send |
 | Rofi clipboard previews | cliphist, wl-clipboard, ImageMagick (`magick`); clipboard history must be collected by your session |
 | Rofi calculator / app icons | Rofi calc plugin, Adwaita icon theme |
+| Rofi recent-app tracking | Python 3, PyGObject (`python-gobject` on Arch), GIO introspection |
 | Standalone package menu | yay, kitty; launch `~/.config/rofi/scripts/pkgmanager.sh` separately |
 | Weather | curl, jq (preferred), gnome-weather for the click action |
 | Other click actions | missioncenter, gsimplecal, tailscale, hyprctl, hyprlock |
@@ -108,7 +120,7 @@ The tab also provides refresh, Wi-Fi radio and disconnect actions. No wireless n
 - `scripts/`: live metrics, menus and desktop actions. Some older text-based metric scripts are retained but are no longer used by the main layout.
 - `tests/`: simulated Wi-Fi menu and connection-flow tests.
 - `rofi/`: launcher configuration, themes, favourites and clipboard/screenshot/package/power menus.
-- `bin/`: clipboard thumbnail helper and launcher toggle for `~/.local/bin`.
+- `bin/`: clipboard thumbnail helper, launcher toggle and recent-app tracking helpers for `~/.local/bin`.
 
 CSS changes reload automatically. Restart Waybar after changing its JSON configuration or a continuously running Python script. Reopen Rofi after menu changes.
 
@@ -116,7 +128,8 @@ CSS changes reload automatically. Restart Waybar after changing its JSON configu
 
 ```sh
 python3 -m unittest discover -s tests -v
-for script in scripts/*.sh rofi/scripts/*.sh bin/*; do bash -n "$script"; done
+for script in scripts/*.sh rofi/scripts/*.sh bin/*.sh bin/rofi-clipboard; do bash -n "$script"; done
+python3 -m py_compile bin/rofi-recent bin/rofi-record-launch
 ```
 
 The Wi-Fi tests use simulated NetworkManager devices and do not connect, disconnect or toggle any radios. Live behaviour still depends on your desktop services, hardware and installed fonts.
