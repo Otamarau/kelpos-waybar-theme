@@ -249,7 +249,7 @@
     "restart-interval": 3,
     "exec-on-event": false,
     "tooltip-format": "Arch App Launcher",
-    "on-click": "rofi -show drun"
+    "on-click": "~/.local/bin/rofi-recent"
   },
 
   

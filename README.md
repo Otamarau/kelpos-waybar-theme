@@ -67,6 +67,7 @@ Install the dependencies for the features you use, or remove those modules from 
 
 - The responsive launcher reads Hyprland monitor sizes, rotation and scale. `config.jsonc` remains a static fallback for launching Waybar directly.
 - GPU gauges currently require AMD-style `gpu_busy_percent` and VRAM counters in `/sys/class/drm`.
+- The RAM tooltip reads firmware-configured speed in MT/s from `udevadm` once at startup, without root access. If firmware/udev does not expose it, the speed is shown as unavailable.
 - CPU temperatures support `coretemp`, `k10temp` and `zenpower` sensors. Temperature colours use the sensors' reported limits, with fallback display thresholds when limits are absent.
 - The weather script uses IP geolocation, falling back to Brisbane, Australia. It queries ipapi.co and weather providers Open-Meteo, wttr.in and met.no.
 - Clipboard and other click actions reference `~/.config/rofi/scripts/`; install the included `rofi/` files at that path. The clipboard mode also references `~/.local/bin/rofi-clipboard`.

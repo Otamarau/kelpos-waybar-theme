@@ -2,13 +2,36 @@
 """Stream Waybar JSON for a usage ring; exact readings stay in its tooltip."""
 
 import argparse
+from functools import cache
 import json
 from pathlib import Path
+import subprocess
 import time
 
 
 # CPU uses a font glyph centred by Waybar align and the proportional icon font.
 ICONS = {"cpu": "", "ram": "", "gpu": "󰢮", "vram": "󰘚", "swap": "󰁪"}
+
+
+@cache
+def ram_speed():
+    """Read firmware-configured transfer rates once, without privileged DMI access."""
+    try:
+        result = subprocess.run(
+            ['udevadm', 'info', '--query=property', '--path=/sys/devices/virtual/dmi/id'],
+            capture_output=True, text=True, check=True, timeout=2,
+        )
+        speeds = set()
+        for line in result.stdout.splitlines():
+            key, _, value = line.partition('=')
+            if key.startswith('MEMORY_DEVICE_') and key.endswith('_CONFIGURED_SPEED_MTS'):
+                if value.isdigit() and int(value) > 0:
+                    speeds.add(int(value))
+        if speeds:
+            return 'Configured speed: ' + ' / '.join(str(speed) for speed in sorted(speeds)) + ' MT/s'
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return 'Configured speed: unavailable'
 
 
 def cpu_ticks():
@@ -72,7 +95,10 @@ def reading(metric, previous):
         used = int((device / 'mem_info_vram_used').read_text())
         total = int((device / 'mem_info_vram_total').read_text())
     percent = used / total * 100
-    return percent, f"{metric.upper()}: {used / 2**30:.2f} / {total / 2**30:.2f} GiB ({percent:.1f}%)", previous
+    tooltip = f"{metric.upper()}: {used / 10**9:.2f} / {total / 10**9:.2f} GB ({percent:.1f}%)"
+    if metric == 'ram':
+        tooltip += '\n' + ram_speed()
+    return percent, tooltip, previous
 
 
 def main():

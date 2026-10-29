@@ -12,7 +12,7 @@ if pgrep -x rofi >/dev/null || pgrep -x rofi-wayland >/dev/null; then
 fi
 
 # Otherwise, launch your usual rofi command
-rofi -show drun -click-to-exit
+"$HOME/.local/bin/rofi-recent" -click-to-exit
 
 # Some launchers keep the menu process around after handing off an app.
 # Ensure it is gone once the selected application has been opened.
