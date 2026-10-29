@@ -1,54 +1,68 @@
-#!/usr/bin/env bash
-set -o pipefail
-umask 077
+#!/usr/bin/env python3
+"""Rofi clipboard mode with image thumbnails."""
+import hashlib
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
 
-case "${ROFI_RETV:-0}" in
-  1)
-    # Script-mode selections arrive as an argument, not on stdin.
-    [[ -n ${1:-} ]] || exit 0
-    cliphist decode <<< "$1" | wl-copy
-    exit
-    ;;
-  0) ;;
-  *) exit 0 ;;
-esac
 
-printf '\0no-custom\x1ftrue\n'
+def decode(entry):
+    return subprocess.run(
+        ['cliphist', 'decode'], input=entry + b'\n',
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True,
+    ).stdout
 
-cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/rofi-clipboard-thumbnails"
-mkdir -p "$cache_dir" || exit 1
-history=$(cliphist list) || exit 1
-declare -A retained
-image_pattern='^([0-9]+)[[:space:]]+\[\[ binary data .* (png|jpe?g|gif|webp|bmp|tiff?|ico) .+\]\]$'
 
-while IFS= read -r entry; do
-  [[ -n $entry ]] || continue
-  if [[ $entry =~ $image_pattern ]]; then
-    id=${BASH_REMATCH[1]}
-    thumbnail="$cache_dir/$id.png"
-    retained[$id]=1
-    if [[ ! -s $thumbnail ]]; then
-      temporary=$(mktemp "$cache_dir/.preview.XXXXXX") || exit 1
-      # Cache a small preview; selection always decodes the full original.
-      if cliphist decode <<< "$entry" |
-          magick '-[0]' -auto-orient -thumbnail '192x128>' "png:$temporary" 2>/dev/null; then
-        mv -f "$temporary" "$thumbnail"
-      else
-        rm -f "$temporary"
-      fi
-    fi
-    if [[ -s $thumbnail ]]; then
-      printf '%s\0icon\x1f%s\x1fmeta\x1fscreenshot image\x1factive\x1ftrue\n' "$entry" "$thumbnail"
-      continue
-    fi
-  fi
-  printf '%s\n' "$entry"
-done <<< "$history"
+def main():
+    state = os.environ.get('ROFI_RETV', '0')
+    if state == '1':
+        entry = os.environ.get('ROFI_INFO') or (sys.argv[1] if len(sys.argv) > 1 else '')
+        if entry:
+            subprocess.run(['wl-copy'], input=decode(os.fsencode(entry)),
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        return
+    if state != '0':
+        return
 
-# Remove previews when their entries leave clipboard history.
-for thumbnail in "$cache_dir"/*.png; do
-  [[ -f $thumbnail ]] || continue
-  id=${thumbnail##*/}
-  id=${id%.png}
-  [[ -n ${retained[$id]:-} ]] || rm -f "$thumbnail"
-done
+    cache = Path(os.environ.get('XDG_CACHE_HOME', str(Path.home() / '.cache'))) / 'rofi-clipboard-thumbnails'
+    cache.mkdir(mode=0o700, parents=True, exist_ok=True)
+    os.chmod(cache, 0o700)
+    entries = subprocess.check_output(['cliphist', 'list']).splitlines()
+    # Include the database identity so a replaced database gets a fresh cache.
+    db = Path(os.environ.get('XDG_CACHE_HOME', str(Path.home() / '.cache'))) / 'cliphist/db'
+    try:
+        stat = db.stat()
+        namespace = f'{stat.st_dev}:{stat.st_ino}:'.encode()
+    except OSError:
+        namespace = b''
+    output = sys.stdout.buffer
+    output.write(b'\0no-custom\x1ftrue\n')
+    for entry in entries:
+        icon = b''
+        if b'[[ binary data ' in entry:
+            icon = b'image-x-generic'
+            try:
+                thumbnail = cache / (hashlib.sha256(namespace + entry).hexdigest() + '.png')
+                if not thumbnail.exists():
+                    data = decode(entry)
+                    with tempfile.NamedTemporaryFile(dir=cache, suffix='.png') as tmp:
+                        subprocess.run(
+                            ['magick', '-[0]', '-thumbnail', '128x128>', 'png:' + tmp.name],
+                            input=data, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                            check=True, timeout=10,
+                        )
+                        thumbnail.write_bytes(Path(tmp.name).read_bytes())
+                        thumbnail.chmod(0o600)
+                icon = os.fsencode(thumbnail)
+            except (OSError, subprocess.SubprocessError):
+                pass
+        metadata = b'info\x1f' + entry.split(b'\t', 1)[0]
+        if icon:
+            metadata += b'\x1ficon\x1f' + icon
+        output.write(entry + b'\0' + metadata + b'\n')
+
+
+if __name__ == '__main__':
+    main()

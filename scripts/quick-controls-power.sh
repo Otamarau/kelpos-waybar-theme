@@ -20,6 +20,6 @@ case "${1:-}" in
     hyprctl dispatch 'hl.dsp.exit()'
     ;;
   "󰌾  Lock")
-    hyprlock
+    python3 "$HOME/.config/hypr/lock-with-cava.py"
     ;;
 esac

@@ -9,5 +9,5 @@ case "$chosen" in
   *"Power Off"*) systemctl poweroff ;;
   *"Reboot"*)    systemctl reboot ;;
   *"Logout"*)    hyprctl dispatch 'hl.dsp.exit()' ;;
-  *"Lock"*)      hyprlock ;;
+  *"Lock"*)      python3 "$HOME/.config/hypr/lock-with-cava.py" ;;
 esac

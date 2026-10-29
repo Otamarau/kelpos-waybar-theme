@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """NetworkManager Wi-Fi list embedded in Rofi's Quick Menu."""
 import base64
 import html
@@ -269,3 +269,4 @@ if __name__ == '__main__':
             header('no-custom', 'true')
             header('message', html.escape(f'Wi-Fi unavailable: {clean(error)}'))
             row('Open Connection Editor', {'action': 'editor'})
+

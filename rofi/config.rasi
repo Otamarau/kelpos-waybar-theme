@@ -1,4 +1,5 @@
 configuration {
+    click-to-exit: true;
 modi: "drun,window,clipboard:~/.local/bin/rofi-clipboard,screenshot:~/.config/rofi/scripts/screenshot-rofi.sh,calc";
     show-icons: true;
     drun-display-format: "{icon} {name}";

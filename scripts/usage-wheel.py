@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """Stream Waybar JSON for a usage ring; exact readings stay in its tooltip."""
 
 import argparse
@@ -7,8 +7,8 @@ from pathlib import Path
 import time
 
 
-# CPU uses a centred SVG overlay; a nonbreaking space keeps its label visible.
-ICONS = {"cpu": "\u00a0", "ram": "", "gpu": "󰢮", "vram": "󰘚", "swap": "󰁪"}
+# CPU uses a font glyph centred by Waybar align and the proportional icon font.
+ICONS = {"cpu": "", "ram": "", "gpu": "󰢮", "vram": "󰘚", "swap": "󰁪"}
 
 
 def cpu_ticks():
@@ -101,3 +101,4 @@ if __name__ == '__main__':
         main()
     except BrokenPipeError:
         pass
+

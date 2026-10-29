@@ -1,199 +1,143 @@
 #!/bin/bash
 
-########################
-# 1. GEOLOCATION (IP)  #
-########################
+CACHE_FILE="/tmp/waybar-brisbane-weather-json.cache"
+CACHE_TTL=1200 # 20 minutes
 
-# Try to detect location from IP
-GEO_JSON=$(curl -fsS --connect-timeout 2 --max-time 4 "https://ipapi.co/json/" 2>/dev/null)
+fetch_json() {
+  local url="$1"
+  curl -fsSL --connect-timeout 2 --max-time 4 "$url" 2>/dev/null
+}
 
-# Default to Brisbane if anything fails
-LAT="-27.47"
-LON="153.03"
-LOCATION="Brisbane, AU"
-
-if [[ -n "$GEO_JSON" ]]; then
-  if command -v jq >/dev/null 2>&1; then
-    glat=$(echo "$GEO_JSON" | jq '.latitude' 2>/dev/null)
-    glon=$(echo "$GEO_JSON" | jq '.longitude' 2>/dev/null)
-    gcity=$(echo "$GEO_JSON" | jq -r '.city // empty' 2>/dev/null)
-    gregion=$(echo "$GEO_JSON" | jq -r '.region // empty' 2>/dev/null)
-    gcountry=$(echo "$GEO_JSON" | jq -r '.country_name // .country // empty' 2>/dev/null)
-  else
-    # crude fallback JSON parsing without jq
-    glat=$(echo "$GEO_JSON" | sed -n 's/.*"latitude":\([^,}]*\).*/\1/p' | head -n1)
-    glon=$(echo "$GEO_JSON" | sed -n 's/.*"longitude":\([^,}]*\).*/\1/p' | head -n1)
-    gcity=$(echo "$GEO_JSON" | sed -n 's/.*"city":"\([^"]*\)".*/\1/p' | head -n1)
-    gregion=$(echo "$GEO_JSON" | sed -n 's/.*"region":"\([^"]*\)".*/\1/p' | head -n1)
-    gcountry=$(echo "$GEO_JSON" | sed -n 's/.*"country_name":"\([^"]*\)".*/\1/p' | head -n1)
-    if [[ -z "$gcountry" ]]; then
-      gcountry=$(echo "$GEO_JSON" | sed -n 's/.*"country":"\([^"]*\)".*/\1/p' | head -n1)
+print_cached_or_na() {
+  if [[ -s "$CACHE_FILE" ]]; then
+    cached_output=$(cat "$CACHE_FILE")
+    if [[ -n "$cached_output" && "$cached_output" != *null* ]]; then
+      echo "$cached_output"
+      return
     fi
   fi
+  printf '%s\n' '{"text":"  N/A","tooltip":"Location: Brisbane, AU\nWeather unavailable"}'
+}
 
-  # If we successfully got numbers, override defaults
-  if [[ -n "$glat" && -n "$glon" ]]; then
-    LAT="$glat"
-    LON="$glon"
-  fi
+# Reuse cached output to avoid API rate limits
+if [[ -f "$CACHE_FILE" ]]; then
+  now=$(date +%s)
+  mtime=$(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0)
+  age=$((now - mtime))
 
-  # Build a human-readable location string if available
-  if [[ -n "$gcity" || -n "$gregion" || -n "$gcountry" ]]; then
-    parts=()
-    [[ -n "$gcity" ]] && parts+=("$gcity")
-    [[ -n "$gregion" ]] && parts+=("$gregion")
-    [[ -n "$gcountry" ]] && parts+=("$gcountry")
-    IFS=", " LOCATION="${parts[*]}"
-    unset IFS
+  if (( age < CACHE_TTL )); then
+    cached_output=$(cat "$CACHE_FILE")
+    if [[ -n "$cached_output" && "$cached_output" != *null* ]]; then
+      echo "$cached_output"
+      exit 0
+    fi
   fi
 fi
 
+########################
+# 1. LOCATION          #
+########################
+
+# Brisbane coordinates
+LAT="-27.47"
+LON="153.03"
+
 ##############################
-# 2. WEATHER API FALLBACKS   #
+# 2. CALL WEATHER APIs        #
 ##############################
 
-TEMP_RAW=""
-CONDITION=""
-SOURCE=""
+API_SOURCE=""
+TEMP=""
+CODE=""
 
-normalize_condition() {
-  local c
-  c=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+JSON=$(fetch_json \
+  "https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code")
 
-  case "$c" in
-    *thunder*|*storm*) echo "Storm" ;;
-    *snow*|*sleet*|*hail*) echo "Snow" ;;
-    *freezing*rain*) echo "Freezing Rain" ;;
-    *drizzle*) echo "Drizzle" ;;
-    *rain*|*shower*) echo "Rain" ;;
-    *fog*|*mist*|*haze*) echo "Fog" ;;
-    *cloud*)
-      if [[ "$c" == *partly* || "$c" == *fair* ]]; then
-        echo "Partly"
-      else
-        echo "Cloudy"
-      fi
-      ;;
-    *clear*|*sunny*) echo "Clear" ;;
-    *) echo "Unknown" ;;
-  esac
-}
-
-try_open_meteo() {
-  local json temp code
-  json=$(curl -fsS --connect-timeout 3 --max-time 6 \
-    "https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code" 2>/dev/null) || return 1
-
+if [[ -n "$JSON" ]]; then
+  # Try to parse with jq if available
   if command -v jq >/dev/null 2>&1; then
-    temp=$(echo "$json" | jq -r '.current.temperature_2m // empty' 2>/dev/null)
-    code=$(echo "$json" | jq -r '.current.weather_code // empty' 2>/dev/null)
+    TEMP=$(echo "$JSON" | jq -r '.current.temperature_2m // empty' 2>/dev/null)
+    CODE=$(echo "$JSON" | jq -r '.current.weather_code // empty' 2>/dev/null)
   else
-    temp=$(echo "$json" | sed -n 's/.*"temperature_2m":\([^,}]*\).*/\1/p' | head -n1)
-    code=$(echo "$json" | sed -n 's/.*"weather_code":\([^,}]*\).*/\1/p' | head -n1)
+    # whitespace-tolerant fallback parsing without jq
+    TEMP=$(echo "$JSON" | tr -d '\n' | sed -n 's/.*"temperature_2m"[[:space:]]*:[[:space:]]*\([^,}]*\).*/\1/p' | head -n1)
+    CODE=$(echo "$JSON" | tr -d '\n' | sed -n 's/.*"weather_code"[[:space:]]*:[[:space:]]*\([^,}]*\).*/\1/p' | head -n1)
   fi
+fi
 
-  [[ -z "$temp" || -z "$code" ]] && return 1
+if [[ -n "$TEMP" && -n "$CODE" && "$TEMP" != "null" && "$CODE" != "null" ]]; then
+  API_SOURCE="open-meteo"
+else
+  WTTR_JSON=$(fetch_json "https://wttr.in/${LAT},${LON}?format=j1")
+  if [[ -n "$WTTR_JSON" ]]; then
+    if command -v jq >/dev/null 2>&1; then
+      TEMP=$(echo "$WTTR_JSON" | jq -r '.current_condition[0].temp_C // empty' 2>/dev/null)
+      CODE=$(echo "$WTTR_JSON" | jq -r '.current_condition[0].weatherCode // empty' 2>/dev/null)
+    else
+      WTTR_ONELINE=$(echo "$WTTR_JSON" | tr -d '\n')
+      TEMP=$(echo "$WTTR_ONELINE" | sed -n 's/.*"temp_C"[[:space:]]*:[[:space:]]*"\{0,1\}\([^",}]*\).*/\1/p' | head -n1)
+      CODE=$(echo "$WTTR_ONELINE" | sed -n 's/.*"weatherCode"[[:space:]]*:[[:space:]]*"\{0,1\}\([^",}]*\).*/\1/p' | head -n1)
+    fi
 
-  case "$code" in
-    0) CONDITION="Clear" ;;
-    1|2) CONDITION="Partly" ;;
-    3) CONDITION="Cloudy" ;;
-    45|48) CONDITION="Fog" ;;
-    51|53|55) CONDITION="Drizzle" ;;
-    61|63|65|80|81|82) CONDITION="Rain" ;;
-    66|67) CONDITION="Freezing Rain" ;;
-    71|73|75|77) CONDITION="Snow" ;;
-    95|96|99) CONDITION="Storm" ;;
-    *) CONDITION="Unknown" ;;
-  esac
-
-  TEMP_RAW="$temp"
-  SOURCE="open-meteo"
-  return 0
-}
-
-try_wttr() {
-  local json temp desc code
-  json=$(curl -fsS --connect-timeout 3 --max-time 6 \
-    "https://wttr.in/${LAT},${LON}?format=j1" 2>/dev/null) || return 1
-
-  if command -v jq >/dev/null 2>&1; then
-    temp=$(echo "$json" | jq -r '.current_condition[0].temp_C // empty' 2>/dev/null)
-    desc=$(echo "$json" | jq -r '.current_condition[0].weatherDesc[0].value // empty' 2>/dev/null)
-    code=$(echo "$json" | jq -r '.current_condition[0].weatherCode // empty' 2>/dev/null)
-  else
-    temp=$(echo "$json" | sed -n 's/.*"temp_C":"\([^"]*\)".*/\1/p' | head -n1)
-    desc=$(echo "$json" | sed -n 's/.*"weatherDesc":\[{"value":"\([^"]*\)"}.*/\1/p' | head -n1)
-    code=$(echo "$json" | sed -n 's/.*"weatherCode":"\([^"]*\)".*/\1/p' | head -n1)
+    if [[ -n "$TEMP" && -n "$CODE" && "$TEMP" != "null" && "$CODE" != "null" ]]; then
+      API_SOURCE="wttr"
+    fi
   fi
+fi
 
-  [[ -z "$temp" ]] && return 1
-
-  if [[ -n "$desc" ]]; then
-    CONDITION=$(normalize_condition "$desc")
-  else
-    case "$code" in
-      113) CONDITION="Clear" ;;
-      116) CONDITION="Partly" ;;
-      119|122) CONDITION="Cloudy" ;;
-      143|248|260) CONDITION="Fog" ;;
-      176|293|296|299|302|305|308|353|356|359) CONDITION="Rain" ;;
-      179|182|185|227|230|281|284|311|314|317|320|323|326|329|332|335|338|350|362|365|368|371|374|377|386|389|392|395) CONDITION="Snow" ;;
-      200) CONDITION="Storm" ;;
-      *) CONDITION="Unknown" ;;
-    esac
-  fi
-
-  TEMP_RAW="$temp"
-  SOURCE="wttr.in"
-  return 0
-}
-
-try_metno() {
-  local json temp symbol
-  json=$(curl -fsS --connect-timeout 3 --max-time 6 \
-    -H "User-Agent: waybar-weather-script/1.0" \
-    "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${LAT}&lon=${LON}" 2>/dev/null) || return 1
-
-  if command -v jq >/dev/null 2>&1; then
-    temp=$(echo "$json" | jq -r '.properties.timeseries[0].data.instant.details.air_temperature // empty' 2>/dev/null)
-    symbol=$(echo "$json" | jq -r '.properties.timeseries[0].data.next_1_hours.summary.symbol_code // .properties.timeseries[0].data.next_6_hours.summary.symbol_code // .properties.timeseries[0].data.next_12_hours.summary.symbol_code // empty' 2>/dev/null)
-  else
-    temp=$(echo "$json" | sed -n 's/.*"air_temperature":\([^,}]*\).*/\1/p' | head -n1)
-    symbol=$(echo "$json" | sed -n 's/.*"symbol_code":"\([^"]*\)".*/\1/p' | head -n1)
-  fi
-
-  [[ -z "$temp" ]] && return 1
-
-  CONDITION=$(normalize_condition "$symbol")
-  TEMP_RAW="$temp"
-  SOURCE="met.no"
-  return 0
-}
-
-if ! try_open_meteo && ! try_wttr && ! try_metno; then
-  echo " N/A"
+if [[ -z "$API_SOURCE" ]]; then
+  print_cached_or_na
   exit 0
 fi
 
-TEMP=$(echo "$TEMP_RAW" | sed 's/\.0$//')
+# Remove trailing .0 if present, then append °C once
+TEMP=$(echo "$TEMP" | sed 's/\.0$//')
 TEMP="${TEMP}°C"
 
 ########################
-# 3. ICON MAPPING      #
+# 3. MAP TO CONDITION  #
 ########################
 
+CONDITION="Unknown"
+if [[ "$API_SOURCE" == "open-meteo" ]]; then
+  case "$CODE" in
+    0) CONDITION="Clear" ;;
+    1|2) CONDITION="Partly" ;;            # mainly clear / partly cloudy
+    3) CONDITION="Cloudy" ;;              # overcast
+    45|48) CONDITION="Fog" ;;
+    51|53|55) CONDITION="Drizzle" ;;
+    61|63|65|80|81|82) CONDITION="Rain" ;; # various rain intensities / showers
+    66|67) CONDITION="Freezing Rain" ;;
+    71|73|75|77) CONDITION="Snow" ;;
+    95|96|99) CONDITION="Storm" ;;        # thunderstorm
+  esac
+else
+  case "$CODE" in
+    113) CONDITION="Clear" ;;
+    116) CONDITION="Partly" ;;
+    119|122) CONDITION="Cloudy" ;;
+    143|248|260) CONDITION="Fog" ;;
+    176|263|266|293|296|299|302|305|308|353|356|359) CONDITION="Rain" ;;
+    179|182|185|227|230|320|323|326|329|332|335|338|350|368|371|374|377) CONDITION="Snow" ;;
+    200|386|389|392|395) CONDITION="Storm" ;;
+  esac
+fi
+
 HOUR=$(date +"%H")
+
 ICON="" # fallback icon
 
 # ---- ICON SET ----
 DAY_CLEAR="󰖙"
 DAY_PARTLY="󰖕"
 DAY_CLOUDY="󰖐"
+DAY_OVERCAST="󰼵"
 DAY_RAIN="󰖖"
+DAY_HEAVY_RAIN="󰼳"
 DAY_DRIZZLE="󰖗"
 DAY_STORM="󰙾"
 DAY_FOG="󰼲"
+DAY_WIND="󰖝"
 
 NIGHT_CLEAR=""
 NIGHT_PARTLY="󰼱"
@@ -203,13 +147,17 @@ NIGHT_FOG="󰖑"
 
 # Night hours: 6pm → 6am
 is_night=false
-(( HOUR >= 18 || HOUR < 6 )) && is_night=true
+(( 10#$HOUR >= 18 || 10#$HOUR < 6 )) && is_night=true
+
+########################
+# 4. PICK ICON         #
+########################
 
 if $is_night; then
   case "$CONDITION" in
     Clear) ICON="$NIGHT_CLEAR" ;;
     Partly|Cloudy) ICON="$NIGHT_PARTLY" ;;
-    Rain|Drizzle|Freezing\ Rain|Snow) ICON="$NIGHT_RAIN" ;;
+    Rain|Drizzle|Freezing\ Rain) ICON="$NIGHT_RAIN" ;;
     Storm) ICON="$NIGHT_STORM" ;;
     Fog) ICON="$NIGHT_FOG" ;;
     *) ICON="" ;;
@@ -219,7 +167,7 @@ else
     Clear) ICON="$DAY_CLEAR" ;;
     Partly) ICON="$DAY_PARTLY" ;;
     Cloudy) ICON="$DAY_CLOUDY" ;;
-    Rain|Freezing\ Rain|Snow) ICON="$DAY_RAIN" ;;
+    Rain|Freezing\ Rain) ICON="$DAY_RAIN" ;;
     Drizzle) ICON="$DAY_DRIZZLE" ;;
     Storm) ICON="$DAY_STORM" ;;
     Fog) ICON="$DAY_FOG" ;;
@@ -231,9 +179,11 @@ json_escape() {
   printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e ':a;N;$!ba;s/\n/\\n/g'
 }
 
-TEXT="$ICON  $TEMP"
-TOOLTIP="Location: $LOCATION
+SOURCE="$API_SOURCE"
+[[ "$SOURCE" == "wttr" ]] && SOURCE="wttr.in"
+TOOLTIP="Location: Brisbane, AU
 $CONDITION, $TEMP
 Source: $SOURCE"
-
-printf '{"text":"%s","tooltip":"%s"}\n' "$(json_escape "$TEXT")" "$(json_escape "$TOOLTIP")"
+OUTPUT=$(printf '{"text":"%s","tooltip":"%s"}' "$(json_escape "$ICON  $TEMP")" "$(json_escape "$TOOLTIP")")
+echo "$OUTPUT"
+printf '%s\n' "$OUTPUT" > "$CACHE_FILE"

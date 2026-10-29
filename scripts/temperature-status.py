@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """Compact Waybar temperatures with sensor-specific colour thresholds."""
 
 import argparse
@@ -92,3 +92,4 @@ if __name__ == '__main__':
     except (OSError, ValueError) as error:
         result = {'text': '—', 'tooltip': html.escape(f'{args.component.upper()}: {error}'), 'class': 'unavailable'}
     print(json.dumps(result))
+

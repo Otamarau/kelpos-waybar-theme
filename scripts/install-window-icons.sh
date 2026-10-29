@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rofi's Wayland window mode looks up lowercase application IDs as icon names.
+# From Otamarau/kelpos-waybar-theme: Rofi window mode uses lowercase app IDs.
 set -euo pipefail
 icon_dir="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/256x256/apps"
 mkdir -p "$icon_dir"

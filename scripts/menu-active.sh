@@ -6,21 +6,12 @@ case "${1:-}" in
   *) exit 1 ;;
 esac
 
-previous_class=
-while true; do
-  menu_class=inactive
-  while IFS= read -r process; do
-    if [[ " $process " == *"$pattern"* ]]; then
-      menu_class=active
-      break
-    fi
-  done < <(pgrep -a -u "$UID" -x 'rofi|rofi-wayland' || true)
-
-  # Avoid rewriting the tooltip while the menu state is unchanged.
-  if [[ "$menu_class" != "$previous_class" ]]; then
-    printf '{"text":"", "class":"%s"}\n' "$menu_class"
-    previous_class=$menu_class
+menu_class=inactive
+while IFS= read -r process; do
+  if [[ " $process " == *"$pattern"* ]]; then
+    menu_class=active
+    break
   fi
-  [[ "${2:-}" == "--watch" ]] || break
-  sleep 0.25
-done
+done < <(pgrep -a -u "$UID" -x 'rofi|rofi-wayland' || true)
+
+printf '{"text":"", "class":"%s"}\n' "$menu_class"

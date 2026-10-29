@@ -101,11 +101,6 @@ element-icon {
     vertical-align: 0.5;
 }
 
-/* Clipboard image entries are marked active by rofi-clipboard. */
-element-icon normal active, element-icon alternate active, element-icon selected active {
-    size: 64px;
-}
-
 element-text {
     text-color: inherit;
     

@@ -1,10 +1,9 @@
 @import url("usage-wheels.css");
-
 @define-color waybar_background rgba(0, 0, 0, 0.85);
 
 * {
-  font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
-  font-size: 15px;
+  font-family: "JetBrains Mono", "Font Awesome 6 Free";
+  font-size: 14px;
   padding: 0;
   margin: 0;
   transition: background-color 0.25s ease, color 0.25s ease;
@@ -19,11 +18,19 @@ window#waybar {
   /* box-shadow: 0px 4px 8px rgba(0,0,0,0.6); */
 }
 
+
 #workspaces button {
+  border: none;
+  box-shadow: none;
   padding: 2px 6px;
   margin: 0 4px;
   border-radius: 6px;
   color: #888;
+}
+
+#workspaces button.active {
+  background: white;
+  color: black;
 }
 
 /* #tray {
@@ -54,9 +61,8 @@ window#waybar {
   color: #fff;
   border-radius: 8px;
   /* padding: 2px 9px; */
-  /* The glyph extends 5px beyond its font advance; center the visible shape. */
-  padding-left: 5px;
-  padding-right: 10px;
+  padding-left: 10px;
+  padding-right: 5px;
   /* margin: 0 4px; */
   /* margin-right: 20px; */
 
@@ -64,14 +70,26 @@ window#waybar {
 
 }
 
+#custom-tailscale {
+  color: transparent;
+  border-radius: 8px;
+  min-width: 16px;
+  padding: 2px 10px 2px 8px;
+  background-image: url("icons/tailscale-disconnected.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
+}
+
+
 
 #custom-weather {
   /* background: rgba(0, 0, 0, 0); */
   color: #fff;
   border-radius: 8px;
   /* padding: 2px 9px; */
-  padding-left: 4px;
-  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
   /* margin: 0 4px; */
   /* margin-right: 20px; */
 }
@@ -81,7 +99,8 @@ window#waybar {
   color: #fff;
   border-radius: 8px;
   /* padding: 2px 2px; */
-  padding-left: 10px;
+  padding-left: 8px;
+  
   /* margin: 0 4px; */
 }
 
@@ -94,75 +113,62 @@ window#waybar {
   /* background: rgba(0, 0, 0, 0); */
   color: #fff;
   border-radius: 8px;
-  padding: 00px 4px;
+  padding: 2px 8px;
   /* margin: 0 4px; */
-  padding-left: 10px;
+  padding-left: 11px;
 }
+
+
+#battery {
+  font-family: "JetBrains Mono", "Font Awesome 6 Free";
+  /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 2px;
+  /* margin: 0 4px; */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#battery.charging {
+  background: #8fbc5a;
+  color: #101418;
+  font-weight: 700;
+}
+
+#battery.plugged {
+  background: rgba(110, 168, 254, 0.22);
+  color: #d9e8ff;
+}
+
+#battery.warning:not(.charging) {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffe082;
+}
+
+#battery.critical:not(.charging) {
+  background: #c74a4a;
+  color: #fff;
+}
+
+#backlight {
+  font-family: "JetBrainsMono Nerd Font";
+      /* background: rgba(0, 0, 0, 0); */
+  color: #fff;
+  border-radius: 8px;
+  padding: 2px 2px;
+  /* margin: 0 4px; */
+}
+
+
 
 
 #pulseaudio {
     /* background: rgba(0, 0, 0, 0); */
   color: #fff;
   border-radius: 8px;
-  padding: 2px 4px;
+  padding: 2px 2px;
   /* margin: 0 4px; */
   /* padding-left: 11px; */
-}
-
-#now-playing {
-  margin-right: 6px;
-}
-
-#image.album-art {
-  margin: 3px 0;
-}
-
-#custom-visualizer-left,
-#custom-visualizer-right {
-  font-family: "JetBrainsMono Nerd Font";
-  font-size: 16px;
-  color: #fff;
-}
-
-#custom-visualizer-left {
-  margin-right: 12px;
-}
-
-#custom-visualizer-right {
-  margin-left: 12px;
-}
-
-#custom-visualizer-left.silent,
-#custom-visualizer-right.silent {
-  color: #555;
-}
-
-#custom-now-playing {
-  padding: 2px 6px;
-  margin-left: 6px;
-  border-radius: 8px;
-}
-
-#custom-now-playing.paused {
-  color: #999;
-}
-
-#custom-media-previous,
-#custom-media-toggle,
-#custom-media-next {
-  min-width: 14px;
-  padding: 2px 6px;
-  margin-left: 2px;
-  border-radius: 8px;
-}
-
-#custom-quickmenu {
-  color: #fff;
-  border-radius: 8px;
-  /* Center the visible glyph, accounting for its trailing font space. */
-  padding-left: 15px;
-  padding-right: 10px;
-  /* margin-right: 0px; */
 }
 
 
@@ -170,29 +176,39 @@ window#waybar {
   /* background: rgba(0, 0, 0, 0); */
   color: #fff;
   border-radius: 8px;
-  padding: 2px 7.5px;
+  padding: 2px 4px;
   /* margin: 0 4px; */
+  padding-left: 11px;
 }
 
-
-
+#custom-quickmenu {
+  font-family: "JetBrainsMono Nerd Font Propo";
+  color: #fff;
+  border-radius: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: 4px;
+}
 
 #custom-arch {
   color: #fff;
   border-radius: 8px;
-  padding: 2px 7.5px;
+  padding: 2px 0px;
   background-color: black;
-  font-size: 18px;
+
+  font-size: 16px;
   margin-left: 10px;
   /* margin: 0 4px; */
+  padding-left: 10px;
+  padding-right: 8px;
 }
 
 
 #clock {
 
-  font-family: "JetBrainsMono Nerd Font";
+  font-family: "JetBrains Mono";
   font-size: 15px;
-  background: @waybar_background;
+  background: transparent;
   color: #fff;
   border-radius: 8px;
   padding: 2px 8px;
@@ -203,27 +219,23 @@ window#waybar {
 }
 
 /* #cpu {
-  font-family: "JetBrainsMono Nerd Font";
+  font-family: "JetBrains Mono";
   font-size: 15px;
 } */
 
 
 
 
+#network {
+  font-family: "JetBrainsMono Nerd Font";
+  /* padding: 2px 4px; */
+}
+
 
 #cpu {
+  font-family: "JetBrains Mono", "Font Awesome 6 Free";
   border-radius: 8px;
-  padding: 2px 4px;
-}
-
-#memory {
-  border-radius: 8px; 
-  padding: 2px 4px;
-}
-
-#custom-swap {
-  border-radius: 8px;
-  padding: 2px 4px;
+  padding: 2px 2px;
 }
 
 #temperature {
@@ -231,27 +243,22 @@ window#waybar {
   padding: 2px 4px;
 }
 
+#memory {
+  border-radius: 8px;
+  padding: 2px 4px;
+}
 
 #custom-temps {
   border-radius: 8px;
   padding: 2px 4px;
 }
 
-#custom-network {
+#network {
   border-radius: 8px;
   padding: 2px 4px;
 }
 
-#custom-tailscale {
-  font-family: "JetBrainsMono Nerd Font";
-  border-radius: 8px;
-  padding: 2px 26px 2px 4px;
-  background-image: url("icons/tailscale-disconnected.svg");
-  background-size: 22px 22px;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
+/* Status colours from the NAS Waybar setup; retain the existing widget size. */
 #custom-tailscale.connected {
   background-image: url("icons/tailscale-connected.svg");
 }
@@ -262,14 +269,6 @@ window#waybar {
 
 #custom-tailscale.warning {
   background-image: url("icons/tailscale-warning.svg");
-}
-
-#custom-gpu,
-#custom-gpu-memory,
-#custom-gpu-temp {
-  border-radius: 8px;
-  /* background: #741414; */
-  padding: 2px 4px;
 }
 
 /* Hardware readings act as one button with a shared hover border. */
@@ -334,6 +333,12 @@ window#waybar {
   color: #999;
 }
 
+/* Optical centring for the CPU font glyph; retain the 28px total height. */
+#hardware-stats #custom-cpu-wheel {
+  min-height: 27px;
+  padding-top: 1px;
+}
+
 /* Reserve borders in every state so hover and activation never resize modules. */
 #workspaces button,
 #custom-power,
@@ -341,7 +346,9 @@ window#waybar {
 #custom-weather,
 #custom-bluetooth,
 #custom-wifi,
-#custom-network,
+#network,
+#battery,
+#backlight,
 #pulseaudio,
 #custom-now-playing,
 #custom-media-previous,
@@ -367,7 +374,9 @@ window#waybar {
 #custom-weather:hover,
 #custom-bluetooth:hover,
 #custom-wifi:hover,
-#custom-network:hover,
+#network:hover,
+#battery:hover,
+#backlight:hover,
 #pulseaudio:hover,
 #custom-now-playing:hover,
 #custom-media-previous:hover,
@@ -449,7 +458,48 @@ window#waybar {
   color: #000;
 }
 
-/* Stable traffic columns; quiet background traffic stays visually subdued. */
-#custom-network { color: #fff; }
-#custom-network.idle,
-#custom-network.disconnected { color: #777; }
+/* Shared spacing: 6px module gaps (config), 6px insets, 8px screen edges.
+ * Keep the existing 2px borders reserved so hover never shifts the layout. */
+window#waybar {
+  padding: 0;
+}
+.modules-left { margin-left: 8px; }
+.modules-right { margin-right: 8px; }
+
+#custom-arch,
+#custom-weather,
+#custom-clipboard,
+#custom-screenshot,
+#custom-tailscale,
+#clock,
+#pulseaudio,
+#backlight,
+#battery,
+#custom-quickmenu {
+  margin: 0;
+  padding: 0 6px;
+}
+
+/* Equal button widths; proportional glyphs avoid invisible trailing cells. */
+#custom-clipboard,
+#custom-screenshot,
+#custom-tailscale,
+#custom-quickmenu {
+  min-width: 20px;
+  font-family: "JetBrainsMono Nerd Font Propo";
+  font-size: 14px;
+}
+
+#workspaces button {
+  min-width: 16px;
+  padding: 0 6px;
+  margin: 0;
+}
+#workspaces button + button { margin-left: 4px; }
+
+/* Child margins provide the remaining 3px of each group edge's 6px inset. */
+#hardware-stats {
+  margin: 0;
+  padding: 0 3px;
+}
+

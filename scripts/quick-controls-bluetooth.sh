@@ -29,7 +29,7 @@ print_menu() {
   if [ -z "$powered" ]; then
     refresh_result="Could not refresh: Bluetooth is unavailable."
     printf '\0message\x1fBluetooth unavailable. Check the adapter or Bluetooth service.\n'
-    printf 'Open Overskride\nRefresh\n'
+    printf 'Open Bluetooth Manager\nRefresh\n'
     return
   fi
 
@@ -44,7 +44,7 @@ print_menu() {
   else
     printf 'Enable Bluetooth\n'
   fi
-  printf 'Open Overskride\nRefresh\n'
+  printf 'Open Bluetooth Manager\nRefresh\n'
   [ "$powered" = "yes" ] || return 0
 
   if ! devices="$(bt devices)"; then
@@ -109,12 +109,16 @@ if [ "${ROFI_RETV:-0}" = 1 ]; then
         status="Could not disable Bluetooth."
       fi
       ;;
-    "Open Overskride")
+    "Open Bluetooth Manager")
       if command -v overskride >/dev/null 2>&1; then
         nohup overskride </dev/null >/dev/null 2>&1 &
         exit 0
       fi
-      status="Overskride is not installed."
+      if command -v blueman-manager >/dev/null 2>&1; then
+        nohup blueman-manager </dev/null >/dev/null 2>&1 &
+        exit 0
+      fi
+      status="Install Overskride or Blueman for pairing and advanced controls."
       ;;
     "Refresh")
       refreshing=true
@@ -129,3 +133,4 @@ print_menu
 if "$refreshing"; then
   refresh_notification "$refresh_result" 2000 >/dev/null
 fi
+

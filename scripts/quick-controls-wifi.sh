@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-exec python3 "$(dirname "$0")/wifi-menu.py" "$@"
+exec /usr/bin/python3 "$(dirname "$0")/wifi-menu.py" "$@"
+

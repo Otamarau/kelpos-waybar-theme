@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location(
-    'packages_menu', Path(__file__).resolve().parents[1] / 'scripts/packages-menu.py')
+    'packages_menu', Path(__file__).resolve().parents[2] / 'scripts/packages-menu.py')
 menu = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(menu)
 
@@ -42,3 +42,4 @@ class PackageSearchTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

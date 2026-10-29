@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import Mock, patch
 
-spec = importlib.util.spec_from_file_location('wifi', Path(__file__).resolve().parents[1] / 'scripts/wifi-menu.py')
+spec = importlib.util.spec_from_file_location('wifi', Path(__file__).resolve().parents[2] / 'scripts/wifi-menu.py')
 wifi = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(wifi)
 
@@ -180,3 +180,4 @@ class WifiMenuTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

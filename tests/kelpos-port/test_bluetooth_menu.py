@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/quick-controls-bluetooth.sh'
+SCRIPT = Path(__file__).resolve().parents[2] / 'scripts/quick-controls-bluetooth.sh'
 MAC = 'AA:BB:CC:DD:EE:FF'
 
 
@@ -96,3 +96,4 @@ elif command in ('connect', 'disconnect', 'power'):
 
 if __name__ == '__main__':
     unittest.main()
+

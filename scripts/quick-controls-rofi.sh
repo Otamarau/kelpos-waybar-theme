@@ -15,8 +15,10 @@ for mode_script in "$WIFI_MODE" "$BLUETOOTH_MODE" "$POWER_MODE" "$PACKAGES_MODE"
 done
 
 rofi \
-  -show "󰐥" \
+  -click-to-exit \
+  -show "${1:-󰐥}" \
   -p "Quick" \
   -theme-str 'prompt { font: "JetBrainsMono Nerd Font Propo 12"; padding: 0px 6px 0px 2px; }' \
   -sidebar-mode true \
   -modi "󰤨:$WIFI_MODE,󰂯:$BLUETOOTH_MODE,󰏖:$PACKAGES_MODE,󰐥:$POWER_MODE"
+

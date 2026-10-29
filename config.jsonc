@@ -1,17 +1,304 @@
-[
-  {
-    "output": "!DP-2",
-    "include": "~/.config/waybar/config-shared.jsonc"
+{
+  "layer": "top",
+  "height": 32,
+  "spacing": 6,
+  "fixed-center": true,
+  "modules-left": ["custom/arch", "ext/workspaces", "custom/weather", "custom/clipboard", "custom/screenshot"],
+  "modules-center": ["clock"],
+  "modules-right": ["custom/tailscale", "group/hardware-stats", "pulseaudio","backlight", "battery", "custom/quickmenu"],
+
+  // Use Wayland activation to avoid Hyprland IPC version/config incompatibilities.
+  "ext/workspaces": {
+    "format": "{name}",
+    "on-click": "activate",
+    "all-outputs": false,
+    "active-only": false,
+    "sort-by-name": true
   },
-  {
-    // Portrait monitor: anchor the clock to the centre of the screen.
-    "output": "DP-2",
-    "spacing": 8,
-    "expand-left": true,
-    "fixed-center": true,
-    "modules-left": ["custom/arch", "ext/workspaces", "custom/weather", "custom/clipboard", "custom/screenshot", "custom/tailscale", "custom/network"],
-    "modules-center": ["clock"],
-    "modules-right": ["custom/usage-spacer-left", "group/hardware-stats", "pulseaudio", "custom/quickmenu"],
-    "include": "~/.config/waybar/config-shared.jsonc"
-  }
-]
+
+  "clock": {
+    "min-length": 8,
+    "max-length": 8,
+    "align": 0.5,
+    "format": "{:%I:%M %p}",
+    "tooltip-format": "{calendar}",      // keep this so the tooltip shows the calendar
+    "interval": 1,
+    "on-click": "gnome-calendar",        // ⬅ open GNOME Calendar when you click the clock
+
+    "calendar": {
+      "mode": "month",
+      "on-scroll": 1,
+      // Optional: you can keep or remove this.
+      // This on-click is for clicking INSIDE the popup calendar, not the bar clock.
+      // "on-click": "gsimplecal",
+      "format": {
+        "today": "<span color='#8fbc5a'><b>{}</b></span>"
+      }
+    }
+  },
+
+  "cpu": {
+    "min-length": 6,
+    "max-length": 6,
+    "align": 0.0,
+    "format": " {usage:3}%",
+    "interval": 1,
+    "on-click": "missioncenter"
+  },
+
+  "backlight": {
+    "min-length": 7,
+    "max-length": 7,
+    "align": 0.5,
+    "device": "intel_backlight",
+    "format": "󰃠 {percent}%",
+    "tooltip-format": "Brightness: {percent}%",
+    "on-scroll-up": "brightnessctl set +5%",
+    "on-scroll-down": "brightnessctl set 5%-",
+    "tooltip": true
+  },
+
+
+  "memory": {
+    "min-length": 9,
+    "max-length": 9,
+    "align": 0.0,
+    "format": " {used:4.1f} GB",
+    "interval": 1,
+    "unit": "GB",
+    "tooltip-format": "{used:0.1f} GB",
+    "on-click": "missioncenter"
+  },
+
+  "temperature": {
+  // Use your own path from the step above
+    "hwmon-path": "/sys/class/thermal/thermal_zone8/temp",
+    "critical-threshold": 80,
+    "format-critical": " {temperatureC}°C",
+    "format": " {temperatureC}°C",
+    "interval": 2,
+    "on-click": "missioncenter"
+  },
+
+  "custom/temps": {
+  "min-length": 3,
+  "max-length": 4,
+  "align": 0.5,
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 2 -- sh -c '/usr/bin/python3 ~/.config/waybar/scripts/temperature-status.py cpu'",
+  "return-type": "json",
+  "tooltip": true,
+  "on-click": "missioncenter",
+  "restart-interval": 3,
+  "exec-on-event": false
+},
+
+    "custom/quickmenu": {
+  "align": 0.5,
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 1 -- sh -c 'bash ~/.config/waybar/scripts/menu-active.sh quickmenu'",
+  "return-type": "json",
+  "hide-empty-text": false,
+  "format": "󱂬",
+  "tooltip-format": "Quick Menu (Wi-Fi / Bluetooth / Packages / Power)",
+  "on-click": "~/.config/waybar/scripts/quick-controls-rofi.sh",
+  "restart-interval": 3,
+  "exec-on-event": false
+},
+
+
+  "pulseaudio": {
+    "min-length": 7,
+    "max-length": 7,
+    "align": 0.5,
+    "format": "󰕾 {volume}%",
+    "format-muted": "󰖁 0%",
+    "scroll-step": 2,
+    "on-click": "pavucontrol",
+    "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-middle": "pavucontrol"
+  },
+
+  "custom/gpu": {
+    "exec": "~/.config/waybar/scripts/gpu-stats.sh",
+    "interval": 2,
+    "tooltip": true,
+    "on-click": "missioncenter"
+  },
+
+  "custom/weather": {
+  "min-length": 9,
+  "max-length": 9,
+  "align": 0.5,
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 1200 -- sh -c '~/.config/waybar/scripts/brisbane-weather.sh'",
+  "on-click": "gnome-weather",
+  "tooltip": true,
+  "return-type": "json",
+  "restart-interval": 3,
+  "exec-on-event": false
+},
+
+  "custom/power": {
+    "format": "󰐥",
+    "tooltip-format": "Logout / Power Menu",
+    "on-click": "~/.config/rofi/scripts/powermenu.sh"
+  },
+
+  "custom/arch": {
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py --interval 1 -- sh -c 'bash ~/.config/waybar/scripts/menu-active.sh arch'",
+  "return-type": "json",
+  "hide-empty-text": false,
+  "format": "󰣇 btw",
+  "tooltip-format": "Arch App Launcher",
+  "on-click": "rofi -show drun",
+  "restart-interval": 3,
+  "exec-on-event": false
+},
+
+  "battery": {
+    "min-length": 7,
+    "max-length": 7,
+    "align": 0.5,
+    "interval": 5,
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 +{capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-full": "󰁹 {capacity}%",
+    "on-click": "gnome-power-statistics",
+
+    "format-icons": ["󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"],
+    "tooltip-format": "{timeTo}\n{capacity}%\n{power}W"
+  },
+
+
+  
+  // "network": {
+  //   // If you leave this out, Waybar auto-picks the first non-loopback interface
+  //   // "interface": "enp3s0",   // or "wlp3s0" etc if you want to force one
+
+  //   "interval": 1,
+
+  //   // Wi-Fi format: icon + up/down in Bytes/s
+  //   "format-
+  // ": " {bandwidthUpBytes}  {bandwidthDownBytes}",
+
+  //   // Ethernet format: different icon, same speeds
+  //   "format-ethernet": " {bandwidthUpBytes}  {bandwidthDownBytes}",
+
+  //   // When disconnected
+  //   "format-disconnected": "󰈂  no net",
+
+  //   // Tooltip with a bit more info
+  //   "tooltip-format": "Interface: {ifname}\nIP: {ipaddr}\nUp: {bandwidthUpBytes} B/s\nDown: {bandwidthDownBytes} B/s",
+
+  //   "on-click": "~/.config/waybar/scripts/quick-controls-rofi.sh 󰤨",
+  //   "on-click-right": "nm-connection-editor"
+  // },
+  "network": {
+    "min-length": 23,
+    "max-length": 23,
+    "align": 0.0,
+    "class": "net",
+    "interval": 1,
+    "format-wifi": " {bandwidthUpBytes:>}  {bandwidthDownBytes:>}",
+    "format-ethernet": " {bandwidthUpBytes:>}  {bandwidthDownBytes:>}",
+    "format-disconnected": "󰈂  no net",
+    "tooltip-format": "Interface: {ifname}\nIP: {ipaddr}\nUp: {bandwidthUpBytes} B/s\nDown: {bandwidthDownBytes} B/s",
+    "on-click": "~/.config/waybar/scripts/quick-controls-rofi.sh 󰤨",
+    "on-click-right": "nm-connection-editor"
+  },
+
+  "custom/wifi": {
+    "format": "󰤨 5",              // wifi icon from Nerd Font
+    "tooltip": "Wi-Fi picker",
+    "on-click": "~/.config/waybar/scripts/quick-controls-rofi.sh 󰤨",
+    "on-click-right": "nm-connection-editor"
+  },
+
+  "custom/bluetooth": {
+    "format": "󰂯 ",              // bluetooth icon from Nerd Font
+    "tooltip-format": "Bluetooth devices",
+    "on-click": "~/.config/waybar/scripts/quick-controls-rofi.sh 󰂯"
+  },
+
+  "custom/clipboard": {
+    "format": "󰅌",
+    "align": 0.5,
+    "tooltip-format": "Clipboard History",
+    "on-click": "~/.config/rofi/scripts/clipboard-rofi.sh"
+  },
+
+  "custom/screenshot": {
+    "format": "󰹑",
+    "align": 0.5,
+    "tooltip-format": "Screenshot (LMB: area, RMB: full)",
+    "on-click": "~/.config/waybar/scripts/screenshot-area.sh",
+    "on-click-right": "~/.config/waybar/scripts/screenshot-full.sh"
+  },
+
+  "custom/tailscale": {
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c '/usr/bin/python3 ~/.config/waybar/scripts/tailscale-status.py --stream'",
+  "on-click": "xdg-open http://100.100.100.100",
+  "on-click-right": "~/.config/waybar/scripts/quick-controls-rofi.sh 󰤨",
+  "return-type": "json",
+  "tooltip": true,
+  "restart-interval": 3,
+  "exec-on-event": false
+},
+
+
+  "network#icon": {
+    "interval": 5,
+    "format-wifi": "{icon}",
+    "format-ethernet": "{icon}",
+    "format-disconnected": "󰖪 ",
+    "tooltip-format": "Interface: {ifname}\nIP: {ipaddr}\nUp: {bandwidthUpBytes} B/s\nDown: {bandwidthDownBytes} B/s",
+    "format-icons": {
+      "wifi": ["󰤯 ","󰤟 ","󰤢 ","󰤥 ","󰤨 "],
+      "ethernet": ["󰈀 "]
+    },
+    "on-click": "networkmanager_dmenu"
+  },
+
+
+  "group/hardware-stats": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/cpu-wheel",
+      "custom/temps",
+      "custom/ram-wheel",
+      "custom/swap"
+    ]
+  },
+  "custom/cpu-wheel": {
+  "align": 0.525,
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c '/usr/bin/python3 ~/.config/waybar/scripts/usage-wheel.py cpu'",
+  "return-type": "json",
+  "restart-interval": 3,
+  "exec-on-event": false,
+  "tooltip": true,
+  "on-click": "missioncenter"
+},
+  "custom/ram-wheel": {
+  "align": 0.5,
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c '/usr/bin/python3 ~/.config/waybar/scripts/usage-wheel.py ram'",
+  "return-type": "json",
+  "restart-interval": 3,
+  "exec-on-event": false,
+  "tooltip": true,
+  "on-click": "missioncenter"
+},
+  "custom/swap": {
+  "align": 0.5,
+  "exec": "/usr/bin/python3 ~/.config/waybar/scripts/tooltip-cadence.py -- sh -c '/usr/bin/python3 ~/.config/waybar/scripts/usage-wheel.py swap'",
+  "return-type": "json",
+  "restart-interval": 3,
+  "exec-on-event": false,
+  "tooltip": true,
+  "on-click": "missioncenter"
+},
+  "reload_style_on_change": true
+}

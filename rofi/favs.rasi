@@ -1,4 +1,0 @@
-favs: {
-    command: "rofi -dmenu -i -theme ~/.config/rofi/theme.rasi";
-    drun-categories: "Network,Development,Audio,Chat";
-}

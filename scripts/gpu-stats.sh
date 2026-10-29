@@ -42,10 +42,14 @@ fi
 # Icons:
 # 󰢮  GPU usage, 󰘚 VRAM, 󰈸 temp (or change to whatever you like)
 
-# Separate modules use the same padding and bar spacing as the CPU stats.
-case "${1:-all}" in
-  usage) printf '󰢮  %s%%\n' "$GPU_USAGE" ;;
-  memory) printf '󰘚  %sGB\n' "${USED_GB:---}" ;;
-  temperature) printf '󰈸  %s°C\n' "${GPU_TEMP:---}" ;;
-  *) printf '󰢮  %-4s 󰘚  %-7s 󰈸  %s°C\n' "${GPU_USAGE}%" "${USED_GB:---}GB" "${GPU_TEMP:---}" ;;
-esac
+OUTPUT="󰢮  ${GPU_USAGE}%"
+
+if [ -n "$USED_GB" ]; then
+  OUTPUT="$OUTPUT  󰘚  ${USED_GB}GB"
+fi
+
+if [ -n "$GPU_TEMP" ]; then
+  OUTPUT="$OUTPUT  󰈸  ${GPU_TEMP}°C"
+fi
+
+echo "$OUTPUT"

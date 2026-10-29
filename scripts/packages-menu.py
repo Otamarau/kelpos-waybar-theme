@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """Package browser for Rofi Quick Menu; installs remain interactive in Kitty."""
 import html
 import configparser
@@ -352,3 +352,4 @@ if __name__ == '__main__':
         main()
     except (OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
         home(message=f'Package browser: {error}')
+

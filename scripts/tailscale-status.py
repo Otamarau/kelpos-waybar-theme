@@ -4,6 +4,9 @@
 import html
 import json
 import subprocess
+import sys
+import time
+from pathlib import Path
 
 
 def indicator(status):
@@ -37,7 +40,7 @@ def indicator(status):
     return {"text": "\u00a0", "class": css, "tooltip": html.escape("\n".join(lines))}
 
 
-def main():
+def tailscale_status():
     try:
         result = subprocess.run(
             ["tailscale", "status", "--json"],
@@ -46,8 +49,73 @@ def main():
         output = indicator(json.loads(result.stdout))
     except (OSError, subprocess.SubprocessError, ValueError, TypeError, AttributeError):
         output = {"text": "\u00a0", "class": "warning", "tooltip": "Tailscale: status unavailable"}
-    print(json.dumps(output, ensure_ascii=False))
+    return output
+
+
+def network_counters():
+    """Count physical uplinks once, excluding VPN/bridge copies of their traffic."""
+    counters = {}
+    for device in Path('/sys/class/net').iterdir():
+        try:
+            if not (device / 'device').exists():
+                continue
+            if (device / 'operstate').read_text().strip() not in ('up', 'unknown'):
+                continue
+            counters[device.name] = tuple(
+                int((device / 'statistics' / field).read_text())
+                for field in ('rx_bytes', 'tx_bytes')
+            )
+        except (OSError, ValueError):
+            continue
+    return counters
+
+
+def transfer_rates(current, previous, elapsed):
+    if elapsed <= 0:
+        return 0.0, 0.0
+    return tuple(sum(max(0, values[i] - previous[name][i])
+                     for name, values in current.items() if name in previous) / elapsed
+                 for i in (0, 1))
+
+
+def format_rate(value):
+    for unit in ('B/s', 'KiB/s', 'MiB/s', 'GiB/s'):
+        if value < 1024 or unit == 'GiB/s':
+            return f'{value:.1f} {unit}'
+        value /= 1024
+
+
+def main():
+    if '--stream' not in sys.argv:
+        print(json.dumps(tailscale_status(), ensure_ascii=False))
+        return
+    previous = network_counters()
+    sampled = time.monotonic()
+    status = None
+    refresh_at = 0
+    while True:
+        if time.monotonic() >= refresh_at:
+            status = tailscale_status()
+            refresh_at = time.monotonic() + 5
+        time.sleep(max(0, 1 - (time.monotonic() - sampled)))
+        current = network_counters()
+        now = time.monotonic()
+        down, up = transfer_rates(current, previous, now - sampled)
+        previous, sampled = current, now
+        output = dict(status)
+        if current:
+            network = ('Network usage · ' + ', '.join(sorted(current))
+                       + f'\n↓ Download: {format_rate(down)}'
+                       + f'\n↑ Upload: {format_rate(up)}'
+                       + '\nTotal interface traffic (including Tailscale)')
+        else:
+            network = 'Network usage: no active physical interface'
+        output['tooltip'] += '\n\n' + html.escape(network)
+        print(json.dumps(output, ensure_ascii=False), flush=True)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BrokenPipeError:
+        pass

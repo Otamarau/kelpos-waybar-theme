@@ -1,25 +1,5 @@
-# Local snapshots and generated Python caches
+__pycache__/
+*.pyc
 backups/
 *.backup*
 *.before-*
-__pycache__/
-*.py[cod]
-.pytest_cache/
-responsive-waybar.log
-
-# Local agent state and credentials
-.agents/
-.codex/
-.aws/
-.env
-.env.*
-!.env.example
-
-# Editor / operating-system files
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Locally built Waybar widget
-cffi/*.so
