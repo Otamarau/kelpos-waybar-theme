@@ -47,8 +47,6 @@
   },
 
   "backlight": {
-    "min-length": 7,
-    "max-length": 7,
     "align": 0.5,
     "device": "intel_backlight",
     "format": "󰃠 {percent}%",
@@ -106,8 +104,6 @@
 
 
   "pulseaudio": {
-    "min-length": 7,
-    "max-length": 7,
     "align": 0.5,
     "format": "󰕾 {volume}%",
     "format-muted": "󰖁 0%",
@@ -154,8 +150,6 @@
 },
 
   "battery": {
-    "min-length": 7,
-    "max-length": 7,
     "align": 0.5,
     "interval": 5,
     "states": {

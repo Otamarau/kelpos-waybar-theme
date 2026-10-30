@@ -333,12 +333,6 @@ window#waybar {
   color: #999;
 }
 
-/* Optical centring for the CPU font glyph; retain the 28px total height. */
-#hardware-stats #custom-cpu-wheel {
-  min-height: 27px;
-  padding-top: 1px;
-}
-
 /* Reserve borders in every state so hover and activation never resize modules. */
 #workspaces button,
 #custom-power,
@@ -502,4 +496,16 @@ window#waybar {
   margin: 0;
   padding: 0 3px;
 }
+
+/* Compact, uniform insets for the right-hand controls. */
+#custom-tailscale,
+#pulseaudio,
+#backlight,
+#battery,
+#custom-quickmenu {
+  padding: 0 4px;
+}
+
+/* The gauges already contribute 3px margins inside the group. */
+#hardware-stats { padding: 0 1px; }
 
