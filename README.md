@@ -25,12 +25,14 @@ cp -a ~/.config/rofi "$backup/rofi"
 cp config.jsonc style.css usage-wheels.css ~/.config/waybar/
 cp -a scripts icons ~/.config/waybar/
 cp -a rofi/. ~/.config/rofi/
-install -m 755 bin/rofi-clipboard bin/rofi-toggle.sh ~/.local/bin/
+install -m 755 bin/rofi-clipboard bin/rofi-toggle.sh bin/rofi-recent bin/rofi-record-launch ~/.local/bin/
 bash ~/.config/waybar/scripts/install-window-icons.sh
 pkill -USR2 -x waybar || true
 ```
 
 Launch `waybar` if it is not already running. This branch uses `config.jsonc` directly, without the desktop responsive-layout launcher. Rofi changes apply when reopening a menu.
+
+The app launcher uses the desktop branch's recent-app behaviour: an empty search shows recently launched apps first; typing fuzzy-matches app names and ranks results by match quality. Both the launcher shortcut and Waybar app button use `~/.local/bin/rofi-recent`. Launches through this wrapper are recorded in `$XDG_STATE_HOME/rofi/recent-apps.json` (default `~/.local/state/rofi/recent-apps.json`); existing Rofi history supplies the initial order. Launches outside the wrapper are not tracked. This requires Rofi 2.0 and Python GIO introspection, with `drun.DBusActivatable` disabled so launches pass through the recorder.
 
 For Hyprland's Lua configuration, load `integrations/rofi-outside-click.lua` once using `dofile` with its installed absolute path, or copy its block into `hyprland.lua`, then run `hyprctl reload`. It closes mapped Rofi layers only for outside left-clicks and passes the click through. The Rofi `click-to-exit` flag alone does not supply this compositor behaviour on the source Wayland setup.
 
