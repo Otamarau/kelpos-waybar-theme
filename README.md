@@ -1,6 +1,6 @@
 # Waybar
 
-Personal Waybar and Rofi configuration for Arch Linux and Hyprland, with compact hardware gauges and a Rofi network menu.
+Personal Waybar and Rofi configuration for Arch Linux and Hyprland, with compact hardware gauges, a recent-app launcher, and tabbed controls for Wi-Fi, Bluetooth, packages and power.
 
 ![Waybar preview with workspaces, weather, network traffic, clock, media controls and hardware gauges](images/Pasted%20image.png)
 
@@ -11,7 +11,8 @@ Personal Waybar and Rofi configuration for Arch Linux and Hyprland, with compact
 - Colour-coded CPU/GPU temperatures.
 - Fixed-width download/upload readings that dim when idle.
 - Scrolling MPRIS media titles, album art, playback controls and Cava visualizers.
-- Rofi Wi-Fi/Ethernet, Bluetooth and power controls.
+- Rofi app launcher, window switcher, clipboard history with image previews, calculator and screenshot tools.
+- Tabbed Rofi Quick Menu with a Wi-Fi picker, Ethernet status, Bluetooth controls, repository/AUR package browser and power actions.
 - Weather, screenshots, Tailscale status, workspaces and a calendar clock.
 - Rounded white hover borders that fade out without changing module spacing.
 - Shared tooltip update timing to reduce GTK tooltip interruptions.
@@ -71,7 +72,8 @@ The configuration was developed with Waybar 0.15.0, GTK 3, Rofi script mode and 
 | Rofi clipboard previews | cliphist, wl-clipboard, ImageMagick (`magick`); clipboard history must be collected by your session |
 | Rofi calculator / app icons | Rofi calc plugin, Adwaita icon theme |
 | Rofi recent-app tracking | Python 3, PyGObject (`python-gobject` on Arch), GIO introspection |
-| Standalone package menu | yay, kitty; launch `~/.config/rofi/scripts/pkgmanager.sh` separately |
+| Quick Menu package browser | pacman, yay (AUR and combined searches), sudo (repository installs), Kitty, Python 3, notify-send |
+| Standalone package menu | yay, Kitty; launch `~/.config/rofi/scripts/pkgmanager.sh` separately for Install / Remove / Info |
 | Weather | curl, jq (preferred), gnome-weather for the click action |
 | Other click actions | missioncenter, gsimplecal, tailscale, hyprctl, hyprlock |
 
@@ -105,13 +107,63 @@ Thresholds use logical width (after rotation and scaling), not raw panel resolut
 
 Workspaces, clock, volume and Quick Menu remain available. Adjust thresholds in `scripts/responsive-waybar.py`. `python3 scripts/responsive-waybar.py --print-config` previews the generated layout without starting Waybar.
 
-## Network menu
+## Rofi launcher and Quick Menu
 
-The Quick Menu opens to the power tab; select the network tab for network controls. It displays wired connections and, when NetworkManager exposes a Wi-Fi adapter, nearby wireless networks. The connected Wi-Fi network is listed before other networks, which are sorted by signal strength.
+The included Rofi setup has two entry points: the app launcher for everyday desktop tasks and the Quick Menu for system controls. Both use the shared theme and icon tabs; switch tabs with **Left / Right** or click their icons.
 
-Saved profiles are reused. New personal Wi-Fi connections use a masked Rofi password prompt and pass credentials to libnm in memory; the script does not put passwords in shell arguments or write its own password files. NetworkManager manages saved connection profiles. Hidden networks, enterprise authentication and other advanced setup remain available through the full network menu and Connection Editor.
+### App launcher
 
-The tab also provides refresh, Wi-Fi radio and disconnect actions. No wireless networks can be listed until the operating system and NetworkManager recognize a working Wi-Fi adapter.
+Open `~/.local/bin/rofi-recent`, or use **Super + Space** after installing the bindings above. The toggle shortcut closes an already-open Rofi menu; clicking outside also dismisses it.
+
+| Tab | Features |
+| --- | --- |
+| Applications | Application icons, recently launched apps first with an empty search, and fuzzy app-name search ranked by match quality. Launch history is tracked by the included wrapper. |
+| Windows | Find and switch to an open window, with application icons. |
+| Clipboard | Search saved text and image entries from cliphist. Images have cached thumbnail previews; selecting an entry copies the original text or full image back to the clipboard. |
+| Screenshots | Capture a selected area or the full desktop, save a timestamped PNG under `~/Pictures/Screenshots`, copy it to the clipboard and show a notification. |
+| Calculator | Evaluate expressions with the Rofi calc plugin and copy the accepted result to the clipboard. |
+
+Waybar also provides direct clipboard and screenshot buttons. Left-click the screenshot button for an area capture; right-click for a full-desktop capture.
+
+### Quick Menu
+
+Open the Quick Menu from Waybar or run:
+
+```sh
+~/.config/waybar/scripts/quick-controls-rofi.sh
+```
+
+It starts on the **Power** tab, with **Network**, **Bluetooth** and **Packages** available alongside it.
+
+### Wi-Fi picker and Ethernet
+
+- Browse nearby Wi-Fi networks with signal percentages, signal-strength icons, open/secured indicators and a connected marker. The current network comes first, followed by other networks sorted by signal strength.
+- Select a network to connect. Saved profiles are reused; new personal Wi-Fi connections open a masked password prompt.
+- Refresh the network list, turn the Wi-Fi radio on or off, or disconnect an active wireless connection.
+- View Ethernet interfaces, profile names and connection status; select a wired entry to open Connection Editor.
+- Open the full network menu for hidden networks and advanced setup, or launch Connection Editor directly.
+
+Passwords are passed to libnm in memory, rather than shell arguments or script-created password files. NetworkManager manages saved profiles. Enterprise authentication and other advanced connection setup use the external network tools. Wireless discovery requires a Wi-Fi adapter recognized by NetworkManager; the menu also reports unavailable adapters and hardware radio blocks.
+
+### Package browser
+
+The **Packages** tab searches **official repositories**, the **AUR**, or **both**. Choose a source, type at least two characters of a package name or description, and press **Enter**.
+
+- Results show the package name, repository, version, description, application icon when available, and a checkmark for installed packages.
+- Exact names rank first, with application matches ahead of language packs and add-ons. Results are limited to the first 100 matches; narrow the query for more specific results.
+- Select a package to inspect details such as its description, version, URL, dependencies, download/installed sizes and AUR votes when supplied by the package source.
+- Choose **Install in terminal** to open Kitty with an interactive installation: `sudo pacman` for repository packages or `yay` for AUR packages. Normal authentication and package-manager prompts remain visible.
+- Return to results, start a new search or change source from within the menu. Loading notifications provide feedback during searches and detail retrieval.
+
+Package icons use local icons where available, with cached Papirus downloads for missing matches. The older standalone `~/.config/rofi/scripts/pkgmanager.sh` offers **Install / Remove / Info** through yay; removal is available there, not in the Quick Menu package browser.
+
+### Bluetooth
+
+Enable or disable Bluetooth, refresh the known-device list, and select a device to connect or disconnect. Filled and empty circles indicate connection state. **Open Overskride** launches the full Bluetooth manager for discovery, pairing and PIN/confirmation workflows. The inline menu reports connection failures and unavailable adapters or services.
+
+### Power
+
+**Power Off**, **Reboot**, **Logout** and **Lock** are available in the Power tab. Logout uses the Hyprland Lua exit dispatcher, and Lock launches Hyprlock directly. Power actions execute when selected, without a separate confirmation menu.
 
 ## Files
 
@@ -120,7 +172,7 @@ The tab also provides refresh, Wi-Fi radio and disconnect actions. No wireless n
 - `style.css`: bar, tooltip text colours and hover styling.
 - `usage-wheels.css`, `icons/`: gauge backgrounds and icons.
 - `scripts/`: live metrics, menus and desktop actions. Some older text-based metric scripts are retained but are no longer used by the main layout.
-- `tests/`: simulated Wi-Fi menu and connection-flow tests.
+- `tests/`: checks for network, Bluetooth and package menus, recent-app tracking, responsive layouts and native helpers.
 - `rofi/`: launcher configuration, themes, favourites and clipboard/screenshot/package/power menus.
 - `bin/`: clipboard thumbnail helper, launcher toggle and recent-app tracking helpers for `~/.local/bin`.
 
