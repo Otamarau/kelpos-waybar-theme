@@ -2,6 +2,8 @@
 
 Personal Waybar and Rofi configuration for Arch Linux and Hyprland, with compact hardware gauges and a Rofi network menu.
 
+![Waybar preview with workspaces, weather, network traffic, clock, media controls and hardware gauges](images/Pasted%20image.png)
+
 ## Features
 
 - White CPU, RAM, swap, GPU and VRAM usage wheels with detailed tooltips.
